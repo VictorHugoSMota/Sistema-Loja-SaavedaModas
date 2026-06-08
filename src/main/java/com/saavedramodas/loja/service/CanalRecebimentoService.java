@@ -4,6 +4,7 @@ import com.saavedramodas.loja.domain.entity.CanalRecebimento;
 import com.saavedramodas.loja.repository.CanalRecebimentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -14,5 +15,9 @@ public class CanalRecebimentoService {
 
         public CanalRecebimento salvar(CanalRecebimento canalRecebimento){
             return canalRecebimentoRepository.save(canalRecebimento);
+        }
+
+        public List<CanalRecebimento> listarTodos(){
+            return  canalRecebimentoRepository.findAll();
         }
 }

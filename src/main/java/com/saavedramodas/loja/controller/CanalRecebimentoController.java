@@ -4,10 +4,9 @@ import com.saavedramodas.loja.domain.entity.CanalRecebimento;
 import com.saavedramodas.loja.dto.request.CanalRecebimentoRequestDTO;
 import com.saavedramodas.loja.service.CanalRecebimentoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/canais")
@@ -24,5 +23,10 @@ public class CanalRecebimentoController {
         canalRecebimento.setNome(request.getNome());
 
         return canalRecebimentoService.salvar(canalRecebimento);
+    }
+
+    @GetMapping
+    public List<CanalRecebimento> listarTodos(){
+        return canalRecebimentoService.listarTodos();
     }
 }
