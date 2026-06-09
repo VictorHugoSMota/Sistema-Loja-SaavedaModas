@@ -20,4 +20,9 @@ public class CanalRecebimentoService {
         public List<CanalRecebimento> listarTodos(){
             return  canalRecebimentoRepository.findAll();
         }
+
+        public CanalRecebimento buscarPorId(Long id){
+            return canalRecebimentoRepository.findById(id)
+                    .orElseThrow();
+        }
 }
