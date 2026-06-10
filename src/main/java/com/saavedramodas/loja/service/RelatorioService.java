@@ -17,6 +17,7 @@ public class RelatorioService {
 
     private final LancamentoRepository lancamentoRepository;
 
+    //Metodo Diario
     public List<RelatorioDiarioResponseDTO> buscarRelatorioDiario(LocalDate data){
 
         List<Object[]> resultado=
@@ -34,6 +35,34 @@ public class RelatorioService {
 
             relatorio.add(dto);
         }
+        return relatorio;
+    }
+
+    //Metodo pEriodo
+    public List<RelatorioDiarioResponseDTO> buscarRelatorioPeriodo(
+            LocalDate dataInicio,
+            LocalDate dataFim) {
+
+        List<Object[]> resultado =
+                lancamentoRepository.buscarRelatorioPeriodo(
+                        dataInicio,
+                        dataFim
+                );
+
+        List<RelatorioDiarioResponseDTO> relatorio =
+                new ArrayList<>();
+
+        for(Object[] linha : resultado){
+
+            RelatorioDiarioResponseDTO dto =
+                    RelatorioDiarioResponseDTO.builder()
+                            .canalRecebimento((String) linha[0])
+                            .valor((BigDecimal) linha[1])
+                            .build();
+
+            relatorio.add(dto);
+        }
+
         return relatorio;
     }
 }

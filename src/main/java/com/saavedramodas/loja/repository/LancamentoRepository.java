@@ -27,4 +27,17 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long> {
 
     List<Object[]> buscarRelatorioDiario(LocalDate data);
 
+    @Query("""
+       SELECT c.nome, COALESCE(SUM(l.valor),0)
+       FROM CanalRecebimento c
+       LEFT JOIN Lancamento l
+           ON l.canalRecebimento.id = c.id
+           AND l.data BETWEEN :dataInicio AND :dataFim
+       GROUP BY c.nome
+       """)
+    List<Object[]> buscarRelatorioPeriodo(
+            LocalDate dataInicio,
+            LocalDate dataFim
+    );
+
 }

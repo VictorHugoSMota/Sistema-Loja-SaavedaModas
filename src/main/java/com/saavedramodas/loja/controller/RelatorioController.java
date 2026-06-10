@@ -16,6 +16,7 @@ public class RelatorioController {
 
     private final RelatorioService relatorioService;
 
+    //Metodo Diario
     @GetMapping("/diario")
     public List<RelatorioDiarioResponseDTO> buscarRelatorioDiario(
             @RequestParam
@@ -23,5 +24,23 @@ public class RelatorioController {
             LocalDate data){
 
         return relatorioService.buscarRelatorioDiario(data);
+    }
+
+    // Metodo Perido
+    @GetMapping("/periodo")
+    public List<RelatorioDiarioResponseDTO> buscarRelatorioPeriodo(
+
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate dataInicio,
+
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate dataFim){
+
+        return relatorioService.buscarRelatorioPeriodo(
+                dataInicio,
+                dataFim
+        );
     }
 }
