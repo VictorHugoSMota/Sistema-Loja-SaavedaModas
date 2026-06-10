@@ -3,13 +3,11 @@ package com.saavedramodas.loja.controller;
 import com.saavedramodas.loja.service.CanalRecebimentoService;
 import com.saavedramodas.loja.service.LancamentoService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.saavedramodas.loja.domain.entity.CanalRecebimento;
 import com.saavedramodas.loja.domain.entity.Lancamento;
 import com.saavedramodas.loja.dto.request.LancamentoRequestDTO;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import java.util.List;
 
 @RestController
 @RequestMapping("/lancamentos")
@@ -18,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class LancamentoController {
 
     private final LancamentoService lancamentoService;
-
     private final CanalRecebimentoService canalRecebimentoService;
 
     @PostMapping
@@ -34,5 +31,10 @@ public class LancamentoController {
         lancamento.setCanalRecebimento(canalRecebimento);
 
         return lancamentoService.salvar(lancamento);
+    }
+
+    @GetMapping
+    public List<Lancamento> listartTodos(){
+        return lancamentoService.listarTodos();
     }
 }
