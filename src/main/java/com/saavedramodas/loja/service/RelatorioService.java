@@ -38,7 +38,7 @@ public class RelatorioService {
         return relatorio;
     }
 
-    //Metodo pEriodo
+    //Metodo Periodo
     public List<RelatorioDiarioResponseDTO> buscarRelatorioPeriodo(
             LocalDate dataInicio,
             LocalDate dataFim) {
@@ -64,5 +64,19 @@ public class RelatorioService {
         }
 
         return relatorio;
+    }
+
+    // Metodo Mes atual
+    public List<RelatorioDiarioResponseDTO> buscarRelatorioMesAtual() {
+
+        LocalDate hoje = LocalDate.now();
+
+        LocalDate inicioMes =
+                hoje.withDayOfMonth(1);
+
+        return buscarRelatorioPeriodo(
+                inicioMes,
+                hoje
+        );
     }
 }

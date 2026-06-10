@@ -43,4 +43,11 @@ public class RelatorioController {
                 dataFim
         );
     }
+    // Metodo Mes Atual
+    @GetMapping("/mes-atual")
+    public List<RelatorioDiarioResponseDTO> buscarRelatorioMesAtual(){
+
+        return relatorioService.buscarRelatorioMesAtual();
+    }
+
 }
