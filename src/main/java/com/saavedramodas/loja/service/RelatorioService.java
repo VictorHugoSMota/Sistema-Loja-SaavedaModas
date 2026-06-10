@@ -93,4 +93,18 @@ public class RelatorioService {
                 hoje
         );
     }
+
+    // Metodo Ano Atual
+    public List<RelatorioDiarioResponseDTO> buscarRelatorioAnoAtual(){
+
+        LocalDate hoje = LocalDate.now();
+
+        LocalDate inicioAno =
+                hoje.withDayOfYear(1);
+
+        return buscarRelatorioPeriodo(
+                inicioAno,
+                hoje
+        );
+    }
 }

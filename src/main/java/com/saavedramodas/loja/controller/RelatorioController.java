@@ -58,4 +58,10 @@ public class RelatorioController {
         return relatorioService.buscarRelatorioUltimos30Dias();
     }
 
+    // Metodo Ano Atual
+    @GetMapping("/ano-atual")
+    public List<RelatorioDiarioResponseDTO> buscarRelatorioAnoAtual(){
+
+        return relatorioService.buscarRelatorioAnoAtual();
+    }
 }
