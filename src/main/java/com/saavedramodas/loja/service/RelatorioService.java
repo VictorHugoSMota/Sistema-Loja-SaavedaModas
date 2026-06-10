@@ -79,4 +79,18 @@ public class RelatorioService {
                 hoje
         );
     }
+
+    // Metodo Ultimos 30 Dias
+    public List<RelatorioDiarioResponseDTO> buscarRelatorioUltimos30Dias(){
+
+        LocalDate hoje = LocalDate.now();
+
+        LocalDate inicio =
+                hoje.minusDays(30);
+
+        return buscarRelatorioPeriodo(
+                inicio,
+                hoje
+        );
+    }
 }

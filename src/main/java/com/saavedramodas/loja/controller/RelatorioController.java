@@ -16,7 +16,7 @@ public class RelatorioController {
 
     private final RelatorioService relatorioService;
 
-    //Metodo Diario
+    // Metodo Diario
     @GetMapping("/diario")
     public List<RelatorioDiarioResponseDTO> buscarRelatorioDiario(
             @RequestParam
@@ -43,11 +43,19 @@ public class RelatorioController {
                 dataFim
         );
     }
+
     // Metodo Mes Atual
     @GetMapping("/mes-atual")
     public List<RelatorioDiarioResponseDTO> buscarRelatorioMesAtual(){
 
         return relatorioService.buscarRelatorioMesAtual();
+    }
+
+    // Metodo Ultimos 30 Dias
+    @GetMapping("/ultimos-30-dias")
+    public List<RelatorioDiarioResponseDTO> buscarRelatorioUltimos30Dias(){
+
+        return relatorioService.buscarRelatorioUltimos30Dias();
     }
 
 }
