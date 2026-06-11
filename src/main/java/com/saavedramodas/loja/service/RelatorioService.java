@@ -18,27 +18,6 @@ public class RelatorioService {
 
     private final LancamentoRepository lancamentoRepository;
 
-    //Metodo Diario
-//    public List<RelatorioDiarioResponseDTO> buscarRelatorioDiario(LocalDate data){
-//
-//        List<Object[]> resultado=
-//            lancamentoRepository.buscarRelatorioDiario(data);
-//
-//        List<RelatorioDiarioResponseDTO> relatorio = new ArrayList<>();
-//
-//        for(Object[] linha : resultado){
-//
-//            RelatorioDiarioResponseDTO dto =
-//                    RelatorioDiarioResponseDTO.builder()
-//                            .canalRecebimento((String) linha[0])
-//                            .valor((BigDecimal) linha[1])
-//                            .build();
-//
-//            relatorio.add(dto);
-//        }
-//        return relatorio;
-//    }
-
     public RelatorioResponseDTO buscarRelatorioDiario(LocalDate data){
 
         List<Object[]> resultado =
@@ -70,7 +49,7 @@ public class RelatorioService {
     }
 
     //Metodo Periodo
-    public List<RelatorioDiarioResponseDTO> buscarRelatorioPeriodo(
+    public RelatorioResponseDTO buscarRelatorioPeriodo(
             LocalDate dataInicio,
             LocalDate dataFim) {
 
@@ -80,25 +59,33 @@ public class RelatorioService {
                         dataFim
                 );
 
-        List<RelatorioDiarioResponseDTO> relatorio =
+        List<RelatorioItemDTO> itens =
                 new ArrayList<>();
+
+        BigDecimal total = BigDecimal.ZERO;
 
         for(Object[] linha : resultado){
 
-            RelatorioDiarioResponseDTO dto =
-                    RelatorioDiarioResponseDTO.builder()
-                            .canalRecebimento((String) linha[0])
-                            .valor((BigDecimal) linha[1])
-                            .build();
+            BigDecimal valor = (BigDecimal) linha[1];
 
-            relatorio.add(dto);
+            itens.add(
+                    new RelatorioItemDTO(
+                            (String) linha[0],
+                            valor
+                    )
+            );
+
+            total = total.add(valor);
         }
 
-        return relatorio;
+        return new RelatorioResponseDTO(
+                itens,
+                total
+        );
     }
 
     // Metodo Mes atual
-    public List<RelatorioDiarioResponseDTO> buscarRelatorioMesAtual() {
+    public RelatorioResponseDTO buscarRelatorioMesAtual() {
 
         LocalDate hoje = LocalDate.now();
 
@@ -112,7 +99,7 @@ public class RelatorioService {
     }
 
     // Metodo Ultimos 30 Dias
-    public List<RelatorioDiarioResponseDTO> buscarRelatorioUltimos30Dias(){
+    public RelatorioResponseDTO buscarRelatorioUltimos30Dias(){
 
         LocalDate hoje = LocalDate.now();
 
@@ -126,7 +113,7 @@ public class RelatorioService {
     }
 
     // Metodo Ano Atual
-    public List<RelatorioDiarioResponseDTO> buscarRelatorioAnoAtual(){
+    public RelatorioResponseDTO buscarRelatorioAnoAtual(){
 
         LocalDate hoje = LocalDate.now();
 

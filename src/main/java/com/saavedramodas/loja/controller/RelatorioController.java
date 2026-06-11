@@ -28,7 +28,7 @@ public class RelatorioController {
 
     // Metodo Perido
     @GetMapping("/periodo")
-    public List<RelatorioDiarioResponseDTO> buscarRelatorioPeriodo(
+    public RelatorioResponseDTO buscarRelatorioPeriodo(
 
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
@@ -46,21 +46,21 @@ public class RelatorioController {
 
     // Metodo Mes Atual
     @GetMapping("/mes-atual")
-    public List<RelatorioDiarioResponseDTO> buscarRelatorioMesAtual(){
+    public RelatorioResponseDTO buscarRelatorioMesAtual(){
 
         return relatorioService.buscarRelatorioMesAtual();
     }
 
     // Metodo Ultimos 30 Dias
     @GetMapping("/ultimos-30-dias")
-    public List<RelatorioDiarioResponseDTO> buscarRelatorioUltimos30Dias(){
+    public RelatorioResponseDTO buscarRelatorioUltimos30Dias(){
 
         return relatorioService.buscarRelatorioUltimos30Dias();
     }
 
     // Metodo Ano Atual
     @GetMapping("/ano-atual")
-    public List<RelatorioDiarioResponseDTO> buscarRelatorioAnoAtual(){
+    public RelatorioResponseDTO buscarRelatorioAnoAtual(){
 
         return relatorioService.buscarRelatorioAnoAtual();
     }
