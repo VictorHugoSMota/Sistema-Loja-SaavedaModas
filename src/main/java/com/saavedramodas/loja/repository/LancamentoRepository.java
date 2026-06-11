@@ -40,4 +40,6 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long> {
             LocalDate dataFim
     );
 
+    List<Lancamento > findByData(LocalDate data);
+
 }

@@ -1,5 +1,6 @@
 package com.saavedramodas.loja.controller;
 
+import com.saavedramodas.loja.dto.request.LancamentoUpdateDTO;
 import com.saavedramodas.loja.service.CanalRecebimentoService;
 import com.saavedramodas.loja.service.LancamentoService;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import com.saavedramodas.loja.domain.entity.CanalRecebimento;
 import com.saavedramodas.loja.domain.entity.Lancamento;
 import com.saavedramodas.loja.dto.request.LancamentoRequestDTO;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -36,5 +39,20 @@ public class LancamentoController {
     @GetMapping
     public List<Lancamento> listartTodos(){
         return lancamentoService.listarTodos();
+    }
+
+    @GetMapping("/data")
+    public List<Lancamento> buscarPorData(@RequestParam LocalDate data){
+        return lancamentoService.buscarPorData(data);
+    }
+
+    @PutMapping("/{id}")
+    public Lancamento editar(@PathVariable Long id, @RequestBody LancamentoUpdateDTO dto){
+        return lancamentoService.editar(id,dto);
+    }
+
+    @DeleteMapping("/{id}")
+    public void excluir(@PathVariable Long id){
+        lancamentoService.excluir(id);
     }
 }
