@@ -5,7 +5,7 @@ import com.saavedramodas.loja.service.RelatorioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-
+import com.saavedramodas.loja.dto.response.RelatorioResponseDTO;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class RelatorioController {
 
     // Metodo Diario
     @GetMapping("/diario")
-    public List<RelatorioDiarioResponseDTO> buscarRelatorioDiario(
+    public RelatorioResponseDTO buscarRelatorioDiario(
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate data){

@@ -4,7 +4,8 @@ import com.saavedramodas.loja.dto.response.RelatorioDiarioResponseDTO;
 import com.saavedramodas.loja.repository.LancamentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import com.saavedramodas.loja.dto.response.RelatorioItemDTO;
+import com.saavedramodas.loja.dto.response.RelatorioResponseDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,24 +19,54 @@ public class RelatorioService {
     private final LancamentoRepository lancamentoRepository;
 
     //Metodo Diario
-    public List<RelatorioDiarioResponseDTO> buscarRelatorioDiario(LocalDate data){
+//    public List<RelatorioDiarioResponseDTO> buscarRelatorioDiario(LocalDate data){
+//
+//        List<Object[]> resultado=
+//            lancamentoRepository.buscarRelatorioDiario(data);
+//
+//        List<RelatorioDiarioResponseDTO> relatorio = new ArrayList<>();
+//
+//        for(Object[] linha : resultado){
+//
+//            RelatorioDiarioResponseDTO dto =
+//                    RelatorioDiarioResponseDTO.builder()
+//                            .canalRecebimento((String) linha[0])
+//                            .valor((BigDecimal) linha[1])
+//                            .build();
+//
+//            relatorio.add(dto);
+//        }
+//        return relatorio;
+//    }
 
-        List<Object[]> resultado=
-            lancamentoRepository.buscarRelatorioDiario(data);
+    public RelatorioResponseDTO buscarRelatorioDiario(LocalDate data){
 
-        List<RelatorioDiarioResponseDTO> relatorio = new ArrayList<>();
+        List<Object[]> resultado =
+                lancamentoRepository.buscarRelatorioDiario(data);
+
+        List<RelatorioItemDTO> itens =
+                new ArrayList<>();
+
+        BigDecimal total = BigDecimal.ZERO;
 
         for(Object[] linha : resultado){
 
-            RelatorioDiarioResponseDTO dto =
-                    RelatorioDiarioResponseDTO.builder()
-                            .canalRecebimento((String) linha[0])
-                            .valor((BigDecimal) linha[1])
-                            .build();
+            BigDecimal valor = (BigDecimal) linha[1];
 
-            relatorio.add(dto);
+            itens.add(
+                    new RelatorioItemDTO(
+                            (String) linha[0],
+                            valor
+                    )
+            );
+
+            total = total.add(valor);
         }
-        return relatorio;
+
+        return new RelatorioResponseDTO(
+                itens,
+                total
+        );
     }
 
     //Metodo Periodo
