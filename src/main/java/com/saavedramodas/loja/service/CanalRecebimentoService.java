@@ -5,6 +5,7 @@ import com.saavedramodas.loja.repository.CanalRecebimentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import com.saavedramodas.loja.dto.request.CanalRecebimentoUpdateDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -24,5 +25,13 @@ public class CanalRecebimentoService {
         public CanalRecebimento buscarPorId(Long id){
             return canalRecebimentoRepository.findById(id)
                     .orElseThrow();
+        }
+
+        public CanalRecebimento editar(Long id, CanalRecebimentoUpdateDTO dto){
+            CanalRecebimento canalRecebimento =
+                    buscarPorId(id);
+            canalRecebimento.setNome(dto.getNome());
+
+            return canalRecebimentoRepository.save(canalRecebimento);
         }
 }

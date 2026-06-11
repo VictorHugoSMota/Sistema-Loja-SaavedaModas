@@ -2,6 +2,7 @@ package com.saavedramodas.loja.controller;
 
 import com.saavedramodas.loja.domain.entity.CanalRecebimento;
 import com.saavedramodas.loja.dto.request.CanalRecebimentoRequestDTO;
+import com.saavedramodas.loja.dto.request.CanalRecebimentoUpdateDTO;
 import com.saavedramodas.loja.service.CanalRecebimentoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -29,4 +30,11 @@ public class CanalRecebimentoController {
     public List<CanalRecebimento> listarTodos(){
         return canalRecebimentoService.listarTodos();
     }
+
+    @PutMapping("/{id}")
+    public CanalRecebimento editar(@PathVariable Long id, @RequestBody CanalRecebimentoUpdateDTO dto){
+        return canalRecebimentoService.editar(id,dto);
+    }
+
+
 }
