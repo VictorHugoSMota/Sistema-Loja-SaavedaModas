@@ -3,6 +3,7 @@ package com.saavedramodas.loja.service;
 import com.saavedramodas.loja.domain.entity.CanalRecebimento;
 import com.saavedramodas.loja.domain.entity.Lancamento;
 import com.saavedramodas.loja.dto.request.LancamentoUpdateDTO;
+import com.saavedramodas.loja.exception.ResourceNotFoundException;
 import com.saavedramodas.loja.repository.LancamentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,8 @@ public class LancamentoService {
 
         Lancamento lancamento =
                 lancamentoRepository.findById(id)
-                        .orElseThrow();
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("Lançamento não encontrado"));
 
         CanalRecebimento canalRecebimento=
                 canalRecebimentoService.buscarPorId(dto.getCanalRecebimentoId());
@@ -50,7 +52,8 @@ public class LancamentoService {
 
         Lancamento lancamento=
                 lancamentoRepository.findById(id)
-                        .orElseThrow();
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException("Lançamento não encontrado"));
 
         lancamentoRepository.delete(lancamento);
         }

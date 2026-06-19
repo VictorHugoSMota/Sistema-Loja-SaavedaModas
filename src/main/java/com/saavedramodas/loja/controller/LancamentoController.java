@@ -3,6 +3,7 @@ package com.saavedramodas.loja.controller;
 import com.saavedramodas.loja.dto.request.LancamentoUpdateDTO;
 import com.saavedramodas.loja.service.CanalRecebimentoService;
 import com.saavedramodas.loja.service.LancamentoService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.saavedramodas.loja.domain.entity.CanalRecebimento;
@@ -22,7 +23,7 @@ public class LancamentoController {
     private final CanalRecebimentoService canalRecebimentoService;
 
     @PostMapping
-    public Lancamento salvar(@RequestBody LancamentoRequestDTO request){
+    public Lancamento salvar(@Valid @RequestBody LancamentoRequestDTO request){
 
         CanalRecebimento canalRecebimento=
                 canalRecebimentoService.buscarPorId(request.getCanalRecebimentoId());
@@ -47,7 +48,10 @@ public class LancamentoController {
     }
 
     @PutMapping("/{id}")
-    public Lancamento editar(@PathVariable Long id, @RequestBody LancamentoUpdateDTO dto){
+    public Lancamento editar(
+            @PathVariable Long id,
+            @Valid @RequestBody LancamentoUpdateDTO dto){
+
         return lancamentoService.editar(id,dto);
     }
 

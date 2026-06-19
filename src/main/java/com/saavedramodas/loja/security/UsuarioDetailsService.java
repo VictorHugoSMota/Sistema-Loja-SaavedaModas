@@ -22,12 +22,12 @@ public class UsuarioDetailsService implements UserDetailsService {
                         .findByUsername(username)
                         .orElseThrow(() ->
                                 new UsernameNotFoundException(
-                                        "Usuário não encontrado"
-                                ));
+                                        "Usuário não encontrado" ));
 
         return User.builder()
                 .username(usuario.getUsername())
                 .password(usuario.getPassword())
+                .roles(usuario.getRole())
                 .build();
     }
 }
