@@ -1,6 +1,7 @@
 package com.saavedramodas.loja.service;
 
 import com.saavedramodas.loja.domain.entity.CanalRecebimento;
+import com.saavedramodas.loja.exception.ResourceNotFoundException;
 import com.saavedramodas.loja.repository.CanalRecebimentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,8 @@ public class CanalRecebimentoService {
 
         public CanalRecebimento buscarPorId(Long id){
             return canalRecebimentoRepository.findById(id)
-                    .orElseThrow();
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("Canal não encontrado"));
         }
 
         public CanalRecebimento editar(Long id, CanalRecebimentoUpdateDTO dto){
