@@ -14,7 +14,7 @@ public class LancamentoRequestDTO {
 
     @NotNull(message = "O valor é obrigatório")
     @DecimalMin(
-            value = "0,01",
+            value = "0.01",
             message = "O valor deve ser maior que zero!"
     )
     private BigDecimal valor;
