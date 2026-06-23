@@ -9,16 +9,20 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
+
 @Service
 public class JwtService {
 
-    private static final String SECRET =
-            "saavedramodaschavesecretajwt2026";
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private final SecretKey key =
-            Keys.hmacShaKeyFor(
-                    SECRET.getBytes(StandardCharsets.UTF_8)
-            );
+    private SecretKey getKey() {
+
+        return Keys.hmacShaKeyFor(
+                secret.getBytes(StandardCharsets.UTF_8)
+        );
+    }
 
     public String gerarToken(String username){
 
@@ -31,7 +35,7 @@ public class JwtService {
                                         + 1000L * 60 * 60 * 24 * 7
                         )
                 )
-                .signWith(key)
+                .signWith(getKey())
                 .compact();
     }
 
@@ -62,7 +66,7 @@ public class JwtService {
     private Claims extrairClaims(String token){
 
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
