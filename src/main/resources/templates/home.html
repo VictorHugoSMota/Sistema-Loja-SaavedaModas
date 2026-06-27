@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Saavedra Modas</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+</head>
+
+<body>
+
+<div class="topbar">
+
+    <div class="logo">
+        SAAVEDRA MODAS
+    </div>
+
+    <div class="usuario">
+        Victor Hugo / Ana Paula
+    </div>
+
+</div>
+
+<div class="container">
+
+    <div class="menu">
+
+        <a href="/home-page">🏠 Home</a>
+
+        <a href="/lancamentos-page">💲 Nova Venda</a>
+
+        <a href="/historico-page">📋 Histórico</a>
+
+        <a href="/relatorios-page">📊 Relatórios</a>
+
+        <a href="/canais-page">⚙️ Canais</a>
+
+    </div>
+
+    <div class="conteudo">
+
+        <div class="card">
+
+            <h2>Faturamento de Hoje</h2>
+
+            <br>
+
+            <h1 style="color:#1f5d3b; font-size:45px;">
+
+                R$
+                <span th:text="${home.faturamentoDia}"></span>
+
+            </h1>
+
+            <br>
+
+            <p>
+
+                Data:
+
+                <span th:text="${home.data}"></span>
+
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Histórico</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
+</head>
+
+<body>
+
+<div class="topbar">
+
+    <div class="logo">
+
+        SAAVEDRA MODAS
+
+    </div>
+
+</div>
+
+<div class="container">
+
+    <div class="menu">
+
+        <a href="/home-page">🏠 Home</a>
+
+        <a href="/lancamentos-page">💰 Nova Venda</a>
+
+        <a href="/historico-page">📋 Histórico</a>
+
+        <a href="/relatorios-page">📊 Relatórios</a>
+
+        <a href="/canais-page">⚙️ Canais</a>
+
+    </div>
+
+    <div class="conteudo">
+
+        <div class="card">
+
+            <h2>Histórico de Vendas</h2>
+
+            <br>
+
+            <label>Pesquisar por data</label>
+
+            <input
+                    type="date"
+                    id="data">
+
+            <button onclick="buscar()">
+
+                Buscar
+
+            </button>
+
+            <br><br>
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>Data</th>
+
+                    <th>Canal</th>
+
+                    <th>Valor</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody id="resultado">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    async function buscar(){
+
+        const data =
+            document.getElementById("data").value;
+
+        const resposta =
+            await fetch("/lancamentos/data?data="+data);
+
+        const lista =
+            await resposta.json();
+
+        let html = "";
+
+        lista.forEach(venda=>{
+
+            html += `
+
+            <tr>
+
+                <td>${venda.data}</td>
+
+                <td>${venda.canalRecebimento.nome}</td>
+
+                <td>R$ ${venda.valor}</td>
+
+            </tr>
+
+            `;
+
+        });
+
+        document
+        .getElementById("resultado")
+        .innerHTML = html;
+
+    }
+
+</script>
+
+</body>
+
+</html>

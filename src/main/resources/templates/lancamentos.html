@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Nova Venda</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+</head>
+
+<body>
+
+<div class="topbar">
+
+    <div class="logo">
+
+        SAAVEDRA MODAS
+
+    </div>
+
+    <div class="usuario">
+
+        Victor Hugo
+
+    </div>
+
+</div>
+
+<div class="container">
+
+    <div class="menu">
+
+        <a href="/home-page">🏠 Home</a>
+
+        <a href="/lancamentos-page">💲 Nova Venda</a>
+
+        <a href="/relatorios-page">📊 Relatórios</a>
+
+        <a href="/canais-page">⚙️ Canais</a>
+
+    </div>
+
+    <div class="conteudo">
+
+        <div class="card">
+
+            <h1>Nova Venda</h1>
+
+            <br>
+
+            <form id="formVenda">
+
+                <label>Valor</label>
+
+                <input
+                        id="valor"
+                        type="number"
+                        step="0.01"
+                        name="valor"
+                        required>
+
+                <br><br>
+
+                <label>Data</label>
+
+                <input
+                        id="data"
+                        type="date"
+                        name="data"
+                        th:value="${#temporals.format(#temporals.createToday(),'yyyy-MM-dd')}"
+                        required>
+
+                <br><br>
+
+                <label>Canal</label>
+
+                <select
+                        id="canalRecebimentoId"
+                        name="canalRecebimentoId">
+
+                    <option
+                            th:each="canal : ${canais}"
+                            th:value="${canal.id}"
+                            th:text="${canal.nome}">
+                    </option>
+
+                </select>
+
+                <br><br>
+
+                <button type="submit">
+
+                    Salvar Venda
+
+                </button>
+                <p id="mensagem"></p>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    document
+    .getElementById("formVenda")
+    .addEventListener("submit", async function(event){
+
+        event.preventDefault();
+
+        const venda = {
+
+            valor: parseFloat(
+                document.getElementById("valor").value
+            ),
+
+            data:
+                document.getElementById("data").value,
+
+            canalRecebimentoId: parseInt(
+                document.getElementById("canalRecebimentoId").value
+            )
+
+        };
+
+const resposta = await fetch("/lancamentos", {
+
+    method: "POST",
+
+    headers: {
+        "Content-Type": "application/json"
+    },
+
+    body: JSON.stringify(venda)
+
+});
+
+        if(resposta.ok){
+
+            document.getElementById("mensagem").innerHTML=
+            "✅ Venda cadastrada com sucesso!";
+
+            document.getElementById("valor").value = "";
+
+        }else{
+
+            const erro = await resposta.json();
+
+            document.getElementById("mensagem").innerHTML=
+            "❌ " + erro.erro;
+
+        }
+
+    });
+
+</script>
+
+</body>
+
+</html>

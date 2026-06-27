@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>Relatórios</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
+</head>
+
+<body>
+
+<div class="topbar">
+
+    <div class="logo">
+
+        SAAVEDRA MODAS
+
+    </div>
+
+    <div class="usuario">
+
+        Victor Hugo
+
+    </div>
+
+</div>
+
+<div class="container">
+
+    <div class="menu">
+
+        <a href="/home-page">🏠 Home</a>
+
+        <a href="/lancamentos-page">💰 Nova Venda</a>
+
+        <a href="/historico-page">📋 Histórico</a>
+
+        <a href="/relatorios-page">📊 Relatórios</a>
+
+        <a href="/canais-page">⚙️ Canais</a>
+
+    </div>
+
+    <div class="conteudo">
+
+        <div class="card">
+
+            <h1>Relatórios de Vendas</h1>
+
+            <p>
+
+                Escolha o tipo do relatório.
+
+            </p>
+
+            <hr>
+
+            <label>
+
+                Tipo do relatório
+
+            </label>
+
+            <select id="tipoRelatorio" onchange="alterarTipo()" class="filtros">
+
+                <option value="diario">
+
+                    Diário
+
+                </option>
+
+                <option value="periodo">
+
+                    Período
+
+                </option>
+
+                <option value="diversos">
+
+                    Diversos
+
+                </option>
+
+            </select>
+
+            <br><br>
+
+            <div id="filtroDiario">
+
+                <label>
+
+                    Data
+
+                </label>
+
+                <input
+                        type="date"
+                        id="data">
+
+            </div>
+
+            <div
+                    id="filtroPeriodo"
+                    style="display:none;">
+
+                <label>
+
+                    Data Inicial
+
+                </label>
+
+                <input
+                        type="date"
+                        id="dataInicio">
+
+                <br><br>
+
+                <label>
+
+                    Data Final
+
+                </label>
+
+                <input
+                        type="date"
+                        id="dataFim">
+
+            </div>
+
+            <div
+                    id="filtroDiversos"
+                    style="display:none;">
+
+                <label>
+
+                    Tipo
+
+                </label>
+
+                <select id="tipoDiverso">
+
+                    <option value="mes-atual">
+
+                        Mês Atual
+
+                    </option>
+
+                    <option value="ultimos-30-dias">
+
+                        Últimos 30 Dias
+
+                    </option>
+
+                    <option value="ano-atual">
+
+                        Ano Atual
+
+                    </option>
+
+                </select>
+
+            </div>
+
+            <br>
+
+            <button onclick="buscarRelatorio()">
+
+                Gerar Relatório
+
+            </button>
+
+            <hr>
+
+            <h2>
+
+                Resumo
+
+            </h2>
+
+            <div id="resumo" class="resumo-card">
+
+            <span class="tituloResumo">
+
+                Total Vendido
+
+             </span>
+
+                <h1>
+
+                    R$ 0,00
+
+                </h1>
+
+            </div>
+
+            <br>
+
+            <h2>
+
+                Totais por Canal
+
+            </h2>
+
+            <div id="cardsCanais"
+                 class="cards-canais">
+
+            </div>
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>
+
+                        Canal
+
+                    </th>
+
+                    <th>
+
+                        Valor
+
+                    </th>
+
+                </tr>
+
+                </thead>
+
+                <tbody id="tabelaCanais">
+
+                </tbody>
+
+            </table>
+
+            <br>
+
+            <h2 class="historico">
+
+                Histórico das Vendas
+
+            </h2>
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>Data</th>
+
+                    <th>Canal</th>
+
+                    <th>Valor</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody id="historico">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    function alterarTipo(){
+
+        const tipo =
+            document.getElementById("tipoRelatorio").value;
+
+        document.getElementById("filtroDiario").style.display="none";
+        document.getElementById("filtroPeriodo").style.display="none";
+        document.getElementById("filtroDiversos").style.display="none";
+
+        if(tipo==="diario"){
+
+            document.getElementById("filtroDiario").style.display="block";
+
+        }
+
+        if(tipo==="periodo"){
+
+            document.getElementById("filtroPeriodo").style.display="block";
+
+        }
+
+        if(tipo==="diversos"){
+
+            document.getElementById("filtroDiversos").style.display="block";
+
+        }
+
+    }
+
+    async function buscarRelatorio(){
+
+        const tipo =
+            document.getElementById("tipoRelatorio").value;
+
+        let url="";
+
+        if(tipo==="diario"){
+
+            const data =
+                document.getElementById("data").value;
+
+            url="/relatorios/diario?data="+data;
+
+        }
+
+        if(tipo==="periodo"){
+
+            const inicio =
+                document.getElementById("dataInicio").value;
+
+            const fim =
+                document.getElementById("dataFim").value;
+
+            url="/relatorios/periodo?dataInicio="+inicio+"&dataFim="+fim;
+
+        }
+
+        if(tipo==="diversos"){
+
+            const opcao =
+                document.getElementById("tipoDiverso").value;
+
+            url="/relatorios/"+opcao;
+
+        }
+
+        const resposta =
+            await fetch(url);
+
+        const relatorio =
+            await resposta.json();
+
+        preencherResumo(relatorio);
+
+        preencherTabela(relatorio);
+
+        carregarHistorico(tipo);
+
+    }
+
+    function preencherResumo(relatorio){
+
+    document.getElementById("resumo").innerHTML = `
+
+        <span class="tituloResumo">
+
+            Total Vendido
+
+        </span>
+
+        <h1>
+
+            R$ ${Number(relatorio.total).toLocaleString("pt-BR",{
+                minimumFractionDigits:2
+            })}
+
+        </h1>
+
+    `;
+
+}
+
+    function preencherTabela(relatorio){
+
+    let cards = "";
+    let tabela = "";
+
+    relatorio.itens.forEach(item=>{
+
+        cards += `
+
+            <div class="canal-card">
+
+                <span>${item.canalRecebimento}</span>
+
+                <h2>
+
+                    R$ ${Number(item.valor).toLocaleString("pt-BR",{
+                        minimumFractionDigits:2
+                    })}
+
+                </h2>
+
+            </div>
+
+        `;
+
+        tabela += `
+
+            <tr>
+
+                <td>${item.canalRecebimento}</td>
+
+                <td>
+
+                    R$ ${Number(item.valor).toLocaleString("pt-BR",{
+                        minimumFractionDigits:2
+                    })}
+
+                </td>
+
+            </tr>
+
+        `;
+
+    });
+
+    document.getElementById("cardsCanais").innerHTML = cards;
+
+    document.getElementById("tabelaCanais").innerHTML = tabela;
+
+}
+
+</script>
+
+</body>
+
+</html>
