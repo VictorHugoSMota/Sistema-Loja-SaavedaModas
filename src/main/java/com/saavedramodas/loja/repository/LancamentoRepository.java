@@ -42,4 +42,8 @@ public interface LancamentoRepository extends JpaRepository<Lancamento, Long> {
 
     List<Lancamento > findByData(LocalDate data);
 
+    long countByData(LocalDate data);
+
+    List<Lancamento> findTop5ByDataOrderByIdDesc(LocalDate data);
+
 }

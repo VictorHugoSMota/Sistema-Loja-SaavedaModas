@@ -4,6 +4,7 @@
 <head>
 
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Histórico</title>
 
@@ -29,13 +30,9 @@
     <div class="menu">
 
         <a href="/home-page">🏠 Home</a>
-
         <a href="/lancamentos-page">💰 Nova Venda</a>
-
         <a href="/historico-page">📋 Histórico</a>
-
         <a href="/relatorios-page">📊 Relatórios</a>
-
         <a href="/canais-page">⚙️ Canais</a>
 
     </div>
@@ -62,33 +59,84 @@
 
             <br><br>
 
-            <table>
+            <div class="tabela-wrapper">
 
-                <thead>
+                <table>
 
-                <tr>
+                    <thead>
 
-                    <th>Data</th>
+                    <tr>
 
-                    <th>Canal</th>
+                        <th>Data</th>
+                        <th>Canal</th>
+                        <th>Valor</th>
+                        <th>Ações</th>
 
-                    <th>Valor</th>
+                    </tr>
 
-                </tr>
+                    </thead>
 
-                </thead>
+                    <tbody id="resultado">
 
-                <tbody id="resultado">
+                    </tbody>
 
-                </tbody>
+                </table>
 
-            </table>
+            </div>
+
+            <p
+                    id="totalVendas"
+                    style="margin-top:20px;font-weight:bold;">
+
+            </p>
 
         </div>
 
     </div>
 
 </div>
+
+<!-- ================= MODAL ================= -->
+
+<div id="modalExcluir" class="modal">
+
+    <div class="modal-box">
+
+        <h2>Excluir Venda</h2>
+
+        <p>
+
+            Tem certeza que deseja excluir esta venda?
+
+        </p>
+
+        <div class="modal-botoes">
+
+            <button
+                    class="btn-cancelar"
+                    onclick="fecharModal()">
+
+                Cancelar
+
+            </button>
+
+            <button
+                    class="btn-confirmar"
+                    onclick="confirmarExclusao()">
+
+                Excluir
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= TOAST ================= -->
+
+<div id="toast"></div>
 
 <script>
 
@@ -105,27 +153,150 @@
 
         let html = "";
 
-        lista.forEach(venda=>{
+        if(lista.length === 0){
 
-            html += `
+            html = `
 
-            <tr>
+                <tr>
 
-                <td>${venda.data}</td>
+                    <td colspan="4">
 
-                <td>${venda.canalRecebimento.nome}</td>
+                        Nenhuma venda encontrada.
 
-                <td>R$ ${venda.valor}</td>
+                    </td>
 
-            </tr>
+                </tr>
 
             `;
 
-        });
+        }else{
+
+            lista.forEach(venda=>{
+
+                const dataFormatada =
+                    venda.data.split("-").reverse().join("/");
+
+                html += `
+
+                <tr>
+
+                    <td>${dataFormatada}</td>
+
+                    <td>${venda.canalRecebimento.nome}</td>
+
+                    <td>
+
+                        R$
+                        ${Number(venda.valor).toLocaleString("pt-BR",{
+                            minimumFractionDigits:2
+                        })}
+
+                    </td>
+
+                    <td>
+
+                        <button
+                                class="btn-editar"
+                                onclick="editar(${venda.id})">
+
+                            ✏️
+
+                        </button>
+
+                        <button
+                                class="btn-excluir"
+                                onclick="excluirVenda(${venda.id})">
+
+                            🗑️
+
+                        </button>
+
+                    </td>
+
+                </tr>
+
+                `;
+
+            });
+
+        }
 
         document
-        .getElementById("resultado")
-        .innerHTML = html;
+            .getElementById("resultado")
+            .innerHTML = html;
+
+        document
+            .getElementById("totalVendas")
+            .innerHTML =
+            "Total de vendas encontradas: <b>"+lista.length+"</b>";
+
+    }
+
+    function editar(id){
+
+        alert("Editar venda ID: "+id);
+
+    }
+
+    let idExcluir = null;
+
+    function excluirVenda(id){
+
+        idExcluir = id;
+
+        document
+            .getElementById("modalExcluir")
+            .style.display = "flex";
+
+    }
+
+    function fecharModal(){
+
+        document
+            .getElementById("modalExcluir")
+            .style.display = "none";
+
+    }
+
+    async function confirmarExclusao(){
+
+        const resposta =
+            await fetch("/lancamentos/"+idExcluir,{
+
+                method:"DELETE"
+
+            });
+
+        fecharModal();
+
+        if(resposta.ok){
+
+            mostrarToast("✅ Venda excluída com sucesso!");
+
+            buscar();
+
+        }else{
+
+            mostrarToast("❌ Erro ao excluir venda.");
+
+        }
+
+    }
+
+    function mostrarToast(texto){
+
+        const toast =
+            document.getElementById("toast");
+
+        toast.innerHTML = texto;
+
+        toast.classList.add("mostrar");
+
+        setTimeout(()=>{
+
+            toast.classList.remove("mostrar");
+
+        },2500);
 
     }
 

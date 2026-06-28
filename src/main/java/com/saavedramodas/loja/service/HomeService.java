@@ -25,9 +25,13 @@ public class HomeService {
             faturamentoDia = BigDecimal.ZERO;
         }
 
+        Long quantidade =
+                lancamentoRepository.countByData(hoje);
+
         return HomeResponseDTO.builder()
                 .data(hoje)
                 .faturamentoDia(faturamentoDia)
+                .quantidadeVendas(quantidade)
                 .build();
     }
 }

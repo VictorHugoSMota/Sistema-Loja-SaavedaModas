@@ -41,8 +41,20 @@
 
             <br>
 
-            <span
-                    th:text="${#temporals.format(home.data,'dd/MM/yyyy')}"> </span>
+            <p>
+                📅 Hoje:
+                <span th:text="${#temporals.format(home.data,'dd/MM/yyyy')}"></span>
+            </p>
+
+            <br>
+
+            <div class="card">
+                <p>
+                    📦 Vendas realizadas:
+                    <strong th:text="${home.quantidadeVendas}"></strong>
+                </p>
+            </div>
+
 
         </div>
 

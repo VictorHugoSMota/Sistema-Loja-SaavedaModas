@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.saavedramodas.loja.domain.entity.CanalRecebimento;
 import com.saavedramodas.loja.domain.entity.Lancamento;
 import com.saavedramodas.loja.dto.request.LancamentoRequestDTO;
-
+import org.springframework.http.ResponseEntity;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -56,7 +56,10 @@ public class LancamentoController {
     }
 
     @DeleteMapping("/{id}")
-    public void excluir(@PathVariable Long id){
+    public ResponseEntity<Void> excluir(@PathVariable Long id){
+
         lancamentoService.excluir(id);
+        return ResponseEntity.noContent().build();
+
     }
 }

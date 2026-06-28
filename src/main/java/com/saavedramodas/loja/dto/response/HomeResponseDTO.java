@@ -10,11 +10,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
 public class HomeResponseDTO {
 
     private LocalDate data;
 
     private BigDecimal faturamentoDia;
+
+    private Long quantidadeVendas;
 
 }
