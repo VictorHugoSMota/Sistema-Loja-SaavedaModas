@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
 
 <head>
 
     <meta charset="UTF-8">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Saavedra Modas</title>
-
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
 </head>
@@ -14,31 +13,18 @@
 <body>
 
 <div class="topbar">
-
-    <div class="logo">
-        SAAVEDRA MODAS
-    </div>
-
-    <div class="usuario">
-        Victor Hugo / Ana Paula
-    </div>
-
+    <div class="logo">SAAVEDRA MODAS</div>
+    <div class="usuario">Victor Hugo / Ana Paula</div>
 </div>
 
 <div class="container">
 
     <div class="menu">
-
         <a href="/home-page">🏠 Home</a>
-
-        <a href="/lancamentos-page">💲 Nova Venda</a>
-
+        <a href="/lancamentos-page">💰 Nova Venda</a>
         <a href="/historico-page">📋 Histórico</a>
-
         <a href="/relatorios-page">📊 Relatórios</a>
-
         <a href="/canais-page">⚙️ Canais</a>
-
     </div>
 
     <div class="conteudo">
@@ -49,22 +35,14 @@
 
             <br>
 
-            <h1 style="color:#1f5d3b; font-size:45px;">
-
-                R$
-                <span th:text="${home.faturamentoDia}"></span>
-
+            <h1 style="color:#1f5d3b;">
+                R$ <span th:text="${home.faturamentoDia}"></span>
             </h1>
 
             <br>
 
-            <p>
-
-                Data:
-
-                <span th:text="${home.data}"></span>
-
-            </p>
+            <span
+                    th:text="${#temporals.format(home.data,'dd/MM/yyyy')}"> </span>
 
         </div>
 
@@ -73,5 +51,4 @@
 </div>
 
 </body>
-
 </html>

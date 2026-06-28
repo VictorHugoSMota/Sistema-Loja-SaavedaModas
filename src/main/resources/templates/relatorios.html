@@ -4,9 +4,8 @@
 <head>
 
     <meta charset="UTF-8">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios</title>
-
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
 </head>
@@ -14,35 +13,18 @@
 <body>
 
 <div class="topbar">
-
-    <div class="logo">
-
-        SAAVEDRA MODAS
-
-    </div>
-
-    <div class="usuario">
-
-        Victor Hugo
-
-    </div>
-
+    <div class="logo">SAAVEDRA MODAS</div>
+    <div class="usuario">Victor Hugo</div>
 </div>
 
 <div class="container">
 
     <div class="menu">
-
         <a href="/home-page">🏠 Home</a>
-
         <a href="/lancamentos-page">💰 Nova Venda</a>
-
         <a href="/historico-page">📋 Histórico</a>
-
         <a href="/relatorios-page">📊 Relatórios</a>
-
         <a href="/canais-page">⚙️ Canais</a>
-
     </div>
 
     <div class="conteudo">
@@ -50,224 +32,65 @@
         <div class="card">
 
             <h1>Relatórios de Vendas</h1>
-
-            <p>
-
-                Escolha o tipo do relatório.
-
-            </p>
+            <p>Escolha o tipo do relatório.</p>
 
             <hr>
 
-            <label>
-
-                Tipo do relatório
-
-            </label>
-
-            <select id="tipoRelatorio" onchange="alterarTipo()" class="filtros">
-
-                <option value="diario">
-
-                    Diário
-
-                </option>
-
-                <option value="periodo">
-
-                    Período
-
-                </option>
-
-                <option value="diversos">
-
-                    Diversos
-
-                </option>
-
+            <label>Tipo do relatório</label>
+            <select id="tipoRelatorio" onchange="alterarTipo()">
+                <option value="diario">Diário</option>
+                <option value="periodo">Período</option>
+                <option value="diversos">Diversos</option>
             </select>
 
-            <br><br>
-
             <div id="filtroDiario">
-
-                <label>
-
-                    Data
-
-                </label>
-
-                <input
-                        type="date"
-                        id="data">
-
+                <label>Data</label>
+                <input type="date" id="data">
             </div>
 
-            <div
-                    id="filtroPeriodo"
-                    style="display:none;">
-
-                <label>
-
-                    Data Inicial
-
-                </label>
-
-                <input
-                        type="date"
-                        id="dataInicio">
-
-                <br><br>
-
-                <label>
-
-                    Data Final
-
-                </label>
-
-                <input
-                        type="date"
-                        id="dataFim">
-
+            <div id="filtroPeriodo" style="display:none;">
+                <label>Data Inicial</label>
+                <input type="date" id="dataInicio">
+                <label>Data Final</label>
+                <input type="date" id="dataFim">
             </div>
 
-            <div
-                    id="filtroDiversos"
-                    style="display:none;">
-
-                <label>
-
-                    Tipo
-
-                </label>
-
+            <div id="filtroDiversos" style="display:none;">
+                <label>Tipo</label>
                 <select id="tipoDiverso">
-
-                    <option value="mes-atual">
-
-                        Mês Atual
-
-                    </option>
-
-                    <option value="ultimos-30-dias">
-
-                        Últimos 30 Dias
-
-                    </option>
-
-                    <option value="ano-atual">
-
-                        Ano Atual
-
-                    </option>
-
+                    <option value="mes-atual">Mês Atual</option>
+                    <option value="ultimos-30-dias">Últimos 30 Dias</option>
+                    <option value="ano-atual">Ano Atual</option>
                 </select>
-
             </div>
 
-            <br>
-
-            <button onclick="buscarRelatorio()">
-
+            <button onclick="buscarRelatorio()" class="btn-verde">
                 Gerar Relatório
-
             </button>
 
             <hr>
 
-            <h2>
-
-                Resumo
-
-            </h2>
-
+            <h2>Resumo</h2>
             <div id="resumo" class="resumo-card">
-
-            <span class="tituloResumo">
-
-                Total Vendido
-
-             </span>
-
-                <h1>
-
-                    R$ 0,00
-
-                </h1>
-
+                <span class="tituloResumo">Total Vendido</span>
+                <h1>R$ 0,00</h1>
             </div>
 
-            <br>
+            <h2>Totais por Canal</h2>
+            <div id="cardsCanais" class="cards-canais"></div>
 
-            <h2>
-
-                Totais por Canal
-
-            </h2>
-
-            <div id="cardsCanais"
-                 class="cards-canais">
-
+            <!-- wrapper garante scroll horizontal no mobile -->
+            <div class="tabela-wrapper">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Canal</th>
+                        <th>Valor</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tabelaCanais"></tbody>
+                </table>
             </div>
-
-            <table>
-
-                <thead>
-
-                <tr>
-
-                    <th>
-
-                        Canal
-
-                    </th>
-
-                    <th>
-
-                        Valor
-
-                    </th>
-
-                </tr>
-
-                </thead>
-
-                <tbody id="tabelaCanais">
-
-                </tbody>
-
-            </table>
-
-            <br>
-
-            <h2 class="historico">
-
-                Histórico das Vendas
-
-            </h2>
-
-            <table>
-
-                <thead>
-
-                <tr>
-
-                    <th>Data</th>
-
-                    <th>Canal</th>
-
-                    <th>Valor</th>
-
-                </tr>
-
-                </thead>
-
-                <tbody id="historico">
-
-                </tbody>
-
-            </table>
-
         </div>
 
     </div>
@@ -277,160 +100,78 @@
 <script>
 
     function alterarTipo(){
+        const tipo = document.getElementById("tipoRelatorio").value;
 
-        const tipo =
-            document.getElementById("tipoRelatorio").value;
+        document.getElementById("filtroDiario").style.display  = "none";
+        document.getElementById("filtroPeriodo").style.display = "none";
+        document.getElementById("filtroDiversos").style.display= "none";
 
-        document.getElementById("filtroDiario").style.display="none";
-        document.getElementById("filtroPeriodo").style.display="none";
-        document.getElementById("filtroDiversos").style.display="none";
-
-        if(tipo==="diario"){
-
-            document.getElementById("filtroDiario").style.display="block";
-
-        }
-
-        if(tipo==="periodo"){
-
-            document.getElementById("filtroPeriodo").style.display="block";
-
-        }
-
-        if(tipo==="diversos"){
-
-            document.getElementById("filtroDiversos").style.display="block";
-
-        }
-
+        if(tipo === "diario")   document.getElementById("filtroDiario").style.display   = "block";
+        if(tipo === "periodo")  document.getElementById("filtroPeriodo").style.display  = "block";
+        if(tipo === "diversos") document.getElementById("filtroDiversos").style.display = "block";
     }
 
     async function buscarRelatorio(){
+        const tipo = document.getElementById("tipoRelatorio").value;
+        let url = "";
 
-        const tipo =
-            document.getElementById("tipoRelatorio").value;
-
-        let url="";
-
-        if(tipo==="diario"){
-
-            const data =
-                document.getElementById("data").value;
-
-            url="/relatorios/diario?data="+data;
-
+        if(tipo === "diario"){
+            const data = document.getElementById("data").value;
+            url = "/relatorios/diario?data=" + data;
         }
 
-        if(tipo==="periodo"){
-
-            const inicio =
-                document.getElementById("dataInicio").value;
-
-            const fim =
-                document.getElementById("dataFim").value;
-
-            url="/relatorios/periodo?dataInicio="+inicio+"&dataFim="+fim;
-
+        if(tipo === "periodo"){
+            const inicio = document.getElementById("dataInicio").value;
+            const fim    = document.getElementById("dataFim").value;
+            url = "/relatorios/periodo?dataInicio=" + inicio + "&dataFim=" + fim;
         }
 
-        if(tipo==="diversos"){
-
-            const opcao =
-                document.getElementById("tipoDiverso").value;
-
-            url="/relatorios/"+opcao;
-
+        if(tipo === "diversos"){
+            const opcao = document.getElementById("tipoDiverso").value;
+            url = "/relatorios/" + opcao;
         }
 
-        const resposta =
-            await fetch(url);
-
-        const relatorio =
-            await resposta.json();
+        const resposta  = await fetch(url);
+        const relatorio = await resposta.json();
 
         preencherResumo(relatorio);
-
         preencherTabela(relatorio);
-
-        carregarHistorico(tipo);
-
     }
 
     function preencherResumo(relatorio){
-
-    document.getElementById("resumo").innerHTML = `
-
-        <span class="tituloResumo">
-
-            Total Vendido
-
-        </span>
-
-        <h1>
-
-            R$ ${Number(relatorio.total).toLocaleString("pt-BR",{
-                minimumFractionDigits:2
-            })}
-
-        </h1>
-
-    `;
-
-}
+        document.getElementById("resumo").innerHTML = `
+            <span class="tituloResumo">Total Vendido</span>
+            <h1>R$ ${Number(relatorio.total).toLocaleString("pt-BR",{ minimumFractionDigits:2 })}</h1>
+        `;
+    }
 
     function preencherTabela(relatorio){
+        let cards  = "";
+        let tabela = "";
 
-    let cards = "";
-    let tabela = "";
+        relatorio.itens.forEach(item => {
+            const valor = Number(item.valor).toLocaleString("pt-BR",{ minimumFractionDigits:2 });
 
-    relatorio.itens.forEach(item=>{
+            cards += `
+                <div class="canal-card">
+                    <span>${item.canalRecebimento}</span>
+                    <h2>R$ ${valor}</h2>
+                </div>
+            `;
 
-        cards += `
+            tabela += `
+                <tr>
+                    <td>${item.canalRecebimento}</td>
+                    <td>R$ ${valor}</td>
+                </tr>
+            `;
+        });
 
-            <div class="canal-card">
-
-                <span>${item.canalRecebimento}</span>
-
-                <h2>
-
-                    R$ ${Number(item.valor).toLocaleString("pt-BR",{
-                        minimumFractionDigits:2
-                    })}
-
-                </h2>
-
-            </div>
-
-        `;
-
-        tabela += `
-
-            <tr>
-
-                <td>${item.canalRecebimento}</td>
-
-                <td>
-
-                    R$ ${Number(item.valor).toLocaleString("pt-BR",{
-                        minimumFractionDigits:2
-                    })}
-
-                </td>
-
-            </tr>
-
-        `;
-
-    });
-
-    document.getElementById("cardsCanais").innerHTML = cards;
-
-    document.getElementById("tabelaCanais").innerHTML = tabela;
-
-}
+        document.getElementById("cardsCanais").innerHTML  = cards;
+        document.getElementById("tabelaCanais").innerHTML = tabela;
+    }
 
 </script>
 
 </body>
-
 </html>
