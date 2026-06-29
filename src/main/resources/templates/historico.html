@@ -2,306 +2,212 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Histórico</title>
-
-    <link rel="stylesheet"
-          th:href="@{/css/style.css}">
-
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
-<body>
+<body onload="carregarHoje()">
 
 <div class="topbar">
-
-    <div class="logo">
-
-        SAAVEDRA MODAS
-
-    </div>
-
+    <div class="logo">SAAVEDRA MODAS</div>
 </div>
 
 <div class="container">
 
     <div class="menu">
-
         <a href="/home-page">🏠 Home</a>
         <a href="/lancamentos-page">💰 Nova Venda</a>
         <a href="/historico-page">📋 Histórico</a>
         <a href="/relatorios-page">📊 Relatórios</a>
         <a href="/canais-page">⚙️ Canais</a>
-
     </div>
 
     <div class="conteudo">
-
         <div class="card">
 
             <h2>Histórico de Vendas</h2>
 
-            <br>
-
-            <label>Pesquisar por data</label>
-
-            <input
-                    type="date"
-                    id="data">
-
-            <button onclick="buscar()">
-
-                Buscar
-
-            </button>
-
-            <br><br>
+            <div class="filtro-busca">
+                <div>
+                    <label>Pesquisar por data</label>
+                    <input type="date" id="data">
+                </div>
+                <button class="btn-buscar" onclick="buscar()">Buscar</button>
+            </div>
 
             <div class="tabela-wrapper">
-
                 <table>
-
                     <thead>
-
                     <tr>
-
                         <th>Data</th>
                         <th>Canal</th>
                         <th>Valor</th>
                         <th>Ações</th>
-
                     </tr>
-
                     </thead>
-
-                    <tbody id="resultado">
-
-                    </tbody>
-
+                    <tbody id="resultado"></tbody>
                 </table>
-
             </div>
 
-            <p
-                    id="totalVendas"
-                    style="margin-top:20px;font-weight:bold;">
-
-            </p>
+            <p id="totalVendas" style="margin-top:20px;font-weight:bold;"></p>
 
         </div>
-
     </div>
 
 </div>
-
-<!-- ================= MODAL ================= -->
 
 <div id="modalExcluir" class="modal">
-
     <div class="modal-box">
-
         <h2>Excluir Venda</h2>
-
-        <p>
-
-            Tem certeza que deseja excluir esta venda?
-
-        </p>
-
+        <p>Tem certeza que deseja excluir esta venda?</p>
         <div class="modal-botoes">
-
-            <button
-                    class="btn-cancelar"
-                    onclick="fecharModal()">
-
-                Cancelar
-
-            </button>
-
-            <button
-                    class="btn-confirmar"
-                    onclick="confirmarExclusao()">
-
-                Excluir
-
-            </button>
-
+            <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+            <button class="btn-confirmar" onclick="confirmarExclusao()">Excluir</button>
         </div>
-
     </div>
-
 </div>
 
-<!-- ================= TOAST ================= -->
+<div id="modalEditar" class="modal">
+    <div class="modal-box">
+        <h2>Editar Venda</h2>
+        <label>Valor</label>
+        <input type="number" id="editarValor" step="0.01">
+        <label>Data</label>
+        <input type="date" id="editarData">
+        <label>Canal</label>
+        <select id="editarCanal"></select>
+        <div class="modal-botoes">
+            <button class="btn-cancelar" onclick="fecharModalEditar()">Cancelar</button>
+            <button class="btn-confirmar" onclick="salvarEdicao()">Salvar</button>
+        </div>
+    </div>
+</div>
 
 <div id="toast"></div>
 
 <script>
 
-    async function buscar(){
-
-        const data =
-            document.getElementById("data").value;
-
-        const resposta =
-            await fetch("/lancamentos/data?data="+data);
-
-        const lista =
-            await resposta.json();
+    async function buscar() {
+        const data = document.getElementById("data").value;
+        const resposta = await fetch("/lancamentos/data?data=" + data);
+        const lista = await resposta.json();
 
         let html = "";
 
-        if(lista.length === 0){
-
-            html = `
-
-                <tr>
-
-                    <td colspan="4">
-
-                        Nenhuma venda encontrada.
-
-                    </td>
-
-                </tr>
-
-            `;
-
-        }else{
-
-            lista.forEach(venda=>{
-
-                const dataFormatada =
-                    venda.data.split("-").reverse().join("/");
-
+        if (lista.length === 0) {
+            html = `<tr><td colspan="4">Nenhuma venda encontrada.</td></tr>`;
+        } else {
+            lista.forEach(venda => {
+                const dataFormatada = venda.data.split("-").reverse().join("/");
                 html += `
-
                 <tr>
-
                     <td>${dataFormatada}</td>
-
                     <td>${venda.canalRecebimento.nome}</td>
-
+                    <td>R$ ${Number(venda.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
                     <td>
-
-                        R$
-                        ${Number(venda.valor).toLocaleString("pt-BR",{
-                            minimumFractionDigits:2
-                        })}
-
+                        <button class="btn-editar" onclick="editar(${venda.id})">✏️</button>
+                        <button class="btn-excluir" onclick="excluirVenda(${venda.id})">🗑️</button>
                     </td>
-
-                    <td>
-
-                        <button
-                                class="btn-editar"
-                                onclick="editar(${venda.id})">
-
-                            ✏️
-
-                        </button>
-
-                        <button
-                                class="btn-excluir"
-                                onclick="excluirVenda(${venda.id})">
-
-                            🗑️
-
-                        </button>
-
-                    </td>
-
-                </tr>
-
-                `;
-
+                </tr>`;
             });
-
         }
 
-        document
-            .getElementById("resultado")
-            .innerHTML = html;
-
-        document
-            .getElementById("totalVendas")
-            .innerHTML =
-            "Total de vendas encontradas: <b>"+lista.length+"</b>";
-
+        document.getElementById("resultado").innerHTML = html;
+        document.getElementById("totalVendas").innerHTML = "Total de vendas encontradas: <b>" + lista.length + "</b>";
     }
 
-    function editar(id){
+    let idEditar = null;
 
-        alert("Editar venda ID: "+id);
+    async function editar(id) {
+        idEditar = id;
 
+        const respostaVenda = await fetch("/lancamentos/" + id);
+        const venda = await respostaVenda.json();
+
+        const respostaCanais = await fetch("/canais");
+        const canais = await respostaCanais.json();
+
+        let options = "";
+        canais.forEach(canal => {
+            options += `<option value="${canal.id}" ${canal.id == venda.canalRecebimento.id ? "selected" : ""}>${canal.nome}</option>`;
+        });
+
+        document.getElementById("editarCanal").innerHTML = options;
+        document.getElementById("editarValor").value = venda.valor;
+        document.getElementById("editarData").value = venda.data;
+        document.getElementById("modalEditar").style.display = "flex";
     }
 
     let idExcluir = null;
 
-    function excluirVenda(id){
-
+    function excluirVenda(id) {
         idExcluir = id;
-
-        document
-            .getElementById("modalExcluir")
-            .style.display = "flex";
-
+        document.getElementById("modalExcluir").style.display = "flex";
     }
 
-    function fecharModal(){
-
-        document
-            .getElementById("modalExcluir")
-            .style.display = "none";
-
+    function fecharModal() {
+        document.getElementById("modalExcluir").style.display = "none";
     }
 
-    async function confirmarExclusao(){
+    function fecharModalEditar() {
+        document.getElementById("modalEditar").style.display = "none";
+    }
 
-        const resposta =
-            await fetch("/lancamentos/"+idExcluir,{
+    async function salvarEdicao() {
+        const body = {
+            valor: Number(document.getElementById("editarValor").value),
+            data: document.getElementById("editarData").value,
+            canalRecebimentoId: Number(document.getElementById("editarCanal").value)
+        };
 
-                method:"DELETE"
+        const resposta = await fetch("/lancamentos/" + idEditar, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
 
-            });
+        fecharModalEditar();
 
+        if (resposta.ok) {
+            mostrarToast("✅ Venda atualizada com sucesso!");
+            buscar();
+        } else {
+            mostrarToast("❌ Erro ao atualizar venda.");
+        }
+    }
+
+    async function confirmarExclusao() {
+        const resposta = await fetch("/lancamentos/" + idExcluir, { method: "DELETE" });
         fecharModal();
 
-        if(resposta.ok){
-
+        if (resposta.ok) {
             mostrarToast("✅ Venda excluída com sucesso!");
-
             buscar();
-
-        }else{
-
+        } else {
             mostrarToast("❌ Erro ao excluir venda.");
-
         }
-
     }
 
-    function mostrarToast(texto){
-
-        const toast =
-            document.getElementById("toast");
-
+    function mostrarToast(texto) {
+        const toast = document.getElementById("toast");
         toast.innerHTML = texto;
-
         toast.classList.add("mostrar");
-
-        setTimeout(()=>{
-
-            toast.classList.remove("mostrar");
-
-        },2500);
-
+        setTimeout(() => toast.classList.remove("mostrar"), 2500);
     }
+
+function carregarHoje() {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+    const data = `${ano}-${mes}-${dia}`;
+    document.getElementById("data").value = data;
+    buscar();
+}
 
 </script>
 
 </body>
-
 </html>

@@ -421,12 +421,6 @@ margin-top:18px;
         padding:12px 14px;
         font-size:13px;
     }
-
-    .tabela-wrapper{
-
-        display:none;
-
-    }
 }
 
 /* telas muito pequenas (320px) */
@@ -727,5 +721,134 @@ transform:scale(1);
     opacity:1;
 
     transform:translateY(0);
+
+}
+
+/* ===== HISTÓRICO ===== */
+
+.filtro-historico{
+
+    display:flex;
+    align-items:end;
+    gap:15px;
+    margin-bottom:25px;
+
+}
+
+.filtro-historico div{
+
+    flex:1;
+
+}
+
+.btn-buscar{
+
+    width:170px;
+    height:48px;
+
+}
+
+@media(max-width:768px){
+
+.filtro-historico{
+
+    flex-direction:column;
+    align-items:stretch;
+
+}
+
+.btn-buscar{
+
+    width:100%;
+
+}
+
+}
+
+.btn-editar,
+.btn-excluir{
+
+    width:44px;
+    height:44px;
+    padding:0;
+    border-radius:10px;
+    font-size:18px;
+    display:inline-flex;
+    justify-content:center;
+    align-items:center;
+
+}
+
+.btn-editar{
+
+    background:#198754;
+
+}
+
+.btn-excluir{
+
+    background:#dc3545;
+
+}
+
+.btn-editar:hover{
+
+    background:#157347;
+
+}
+
+.btn-excluir:hover{
+
+    background:#bb2d3b;
+
+}
+
+.modal-box{
+
+    width:420px;
+    max-width:92%;
+    padding:25px;
+
+}
+
+.filtro-busca{
+    display:flex;
+    gap:15px;
+    align-items:flex-end;
+    margin-bottom:25px;
+}
+
+.filtro-busca div{
+
+    flex:1;
+
+}
+
+.filtro-busca input {
+    margin-bottom: 0;
+}
+
+.btn-buscar{
+
+    height:48px;
+    min-width:150px;
+    width:auto;
+
+}
+
+@media(max-width:768px){
+
+    .filtro-busca{
+
+        flex-direction:column;
+        align-items:stretch;
+
+    }
+
+    .btn-buscar{
+
+        width:100%;
+
+    }
 
 }

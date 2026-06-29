@@ -47,6 +47,13 @@ public class LancamentoController {
         return lancamentoService.buscarPorData(data);
     }
 
+    @GetMapping("/{id}")
+    public Lancamento buscarPorId(@PathVariable Long id){
+
+        return lancamentoService.buscarPorId(id);
+
+    }
+
     @PutMapping("/{id}")
     public Lancamento editar(
             @PathVariable Long id,

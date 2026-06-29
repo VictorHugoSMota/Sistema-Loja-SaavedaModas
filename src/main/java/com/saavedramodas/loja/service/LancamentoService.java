@@ -56,5 +56,14 @@ public class LancamentoService {
                                 new ResourceNotFoundException("Lançamento não encontrado"));
 
         lancamentoRepository.delete(lancamento);
-        }
     }
+
+    public Lancamento buscarPorId(Long id){
+
+        return lancamentoRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Lançamento não encontrado"));
+
+    }
+    }
+

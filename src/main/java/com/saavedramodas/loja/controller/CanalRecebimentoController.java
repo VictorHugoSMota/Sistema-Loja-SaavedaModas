@@ -29,6 +29,7 @@ public class CanalRecebimentoController {
 
     @GetMapping
     public List<CanalRecebimento> listarTodos(){
+
         return canalRecebimentoService.listarTodos();
     }
 

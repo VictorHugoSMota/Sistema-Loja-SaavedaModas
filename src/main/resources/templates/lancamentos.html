@@ -2,12 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nova Venda</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-
 </head>
 
 <body>
@@ -28,84 +26,88 @@
     </div>
 
     <div class="conteudo">
-
         <div class="card">
 
             <h1>Nova Venda</h1>
 
             <br>
 
-            <form id="formVenda">
+            <label>Valor</label>
+            <input id="valor" type="number" step="0.01" placeholder="0,00">
 
-                <label>Valor</label>
-                <input
-                        id="valor"
-                        type="number"
-                        step="0.01"
-                        name="valor"
-                        placeholder="0,00"
-                        required>
+            <label>Data</label>
+            <input id="data" type="date"
+                   th:value="${#temporals.format(#temporals.createToday(),'yyyy-MM-dd')}">
 
-                <label>Data</label>
-                <input
-                        id="data"
-                        type="date"
-                        name="data"
-                        th:value="${#temporals.format(#temporals.createToday(),'yyyy-MM-dd')}"
-                        required>
+            <label>Canal</label>
+            <select id="canalRecebimentoId">
+                <option th:each="canal : ${canais}"
+                        th:value="${canal.id}"
+                        th:text="${canal.nome}">
+                </option>
+            </select>
 
-                <label>Canal</label>
-                <select id="canalRecebimentoId" name="canalRecebimentoId">
-                    <option
-                            th:each="canal : ${canais}"
-                            th:value="${canal.id}"
-                            th:text="${canal.nome}">
-                    </option>
-                </select>
-
-                <button type="submit" class="btn-verde">
-                    Salvar Venda
-                </button>
-
-                <p id="mensagem"></p>
-
-            </form>
+            <button onclick="salvarVenda()" class="btn-verde">
+                Salvar Venda
+            </button>
 
         </div>
-
     </div>
 
 </div>
 
+<!-- ================= MODAL RESULTADO ================= -->
+<div id="modalResultado" class="modal">
+    <div class="modal-box" style="text-align:center;">
+        <div id="modalIcone" style="font-size:48px; margin-bottom:12px;"></div>
+        <h2 id="modalTitulo" style="margin-bottom:8px;"></h2>
+        <p id="modalMensagem" style="margin-bottom:24px;"></p>
+        <button onclick="fecharModalResultado()">OK</button>
+    </div>
+</div>
+
 <script>
 
-    document
-        .getElementById("formVenda")
-        .addEventListener("submit", async function(event){
+    async function salvarVenda() {
 
-            event.preventDefault();
+        const valorInput = document.getElementById("valor").value;
 
-            const venda = {
-                valor: parseFloat(document.getElementById("valor").value),
-                data: document.getElementById("data").value,
-                canalRecebimentoId: parseInt(document.getElementById("canalRecebimentoId").value)
-            };
+        if (!valorInput || parseFloat(valorInput) <= 0) {
+            abrirModal("❌", "Valor inválido", "Informe um valor maior que zero.");
+            return;
+        }
 
-            const resposta = await fetch("/lancamentos", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(venda)
-            });
+        const venda = {
+            valor: parseFloat(valorInput),
+            data: document.getElementById("data").value,
+            canalRecebimentoId: parseInt(document.getElementById("canalRecebimentoId").value)
+        };
 
-            if(resposta.ok){
-                document.getElementById("mensagem").innerHTML = "✅ Venda cadastrada com sucesso!";
-                document.getElementById("valor").value = "";
-            } else {
-                const erro = await resposta.json();
-                document.getElementById("mensagem").innerHTML = "❌ " + erro.erro;
-            }
-
+        const resposta = await fetch("/lancamentos", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(venda)
         });
+
+        if (resposta.ok) {
+            abrirModal("✅", "Venda cadastrada!", "A venda foi registrada com sucesso.");
+            document.getElementById("valor").value = "";
+        } else {
+            const erro = await resposta.json();
+            abrirModal("❌", "Erro ao cadastrar", erro.erro);
+        }
+    }
+
+    function abrirModal(icone, titulo, mensagem) {
+        document.getElementById("modalIcone").innerHTML = icone;
+        document.getElementById("modalTitulo").innerHTML = titulo;
+        document.getElementById("modalMensagem").innerHTML = mensagem;
+        document.getElementById("modalResultado").style.display = "flex";
+    }
+
+    function fecharModalResultado() {
+        document.getElementById("modalResultado").style.display = "none";
+    }
 
 </script>
 
