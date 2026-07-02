@@ -41,5 +41,11 @@ public class CanalRecebimentoController {
         return canalRecebimentoService.editar(id,dto);
     }
 
+    @GetMapping("/{id}")
+    public CanalRecebimento buscarPorId(@PathVariable Long id){
+
+        return canalRecebimentoService.buscarPorId(id);
+
+    }
 
 }

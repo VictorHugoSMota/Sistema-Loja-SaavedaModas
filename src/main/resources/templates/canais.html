@@ -1,10 +1,319 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
+
 <head>
+
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Canais de Recebimento</title>
+
+    <link rel="stylesheet"
+          th:href="@{/css/style.css}">
+
 </head>
+
 <body>
 
+<div class="topbar">
+
+    <div class="logo">
+
+        SAAVEDRA MODAS
+
+    </div>
+
+</div>
+
+<div class="container">
+
+    <div class="menu">
+
+        <a href="/home-page">🏠 Home</a>
+        <a href="/lancamentos-page">💰 Nova Venda</a>
+        <a href="/historico-page">📋 Histórico</a>
+        <a href="/relatorios-page">📊 Relatórios</a>
+        <a href="/canais-page">⚙️ Canais</a>
+
+    </div>
+
+    <div class="conteudo">
+
+        <div class="card">
+
+            <h2>Canais de Recebimento</h2>
+
+            <br>
+
+            <label>Nome do Canal</label>
+
+            <input
+                    type="text"
+                    id="nomeCanal"
+                    placeholder="Ex.: PIX">
+
+            <button
+                    class="btn-verde"
+                    onclick="salvarCanal()">
+
+                Salvar Canal
+
+            </button>
+
+            <br><br>
+
+            <div class="tabela-wrapper">
+
+                <table>
+
+                    <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Ações</th>
+
+                    </tr>
+
+                    </thead>
+
+                    <tbody id="listaCanais">
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="modalEditar" class="modal">
+
+    <div class="modal-box">
+
+        <h2>Editar Canal</h2>
+
+        <label>Nome</label>
+
+        <input
+                type="text"
+                id="editarNome">
+
+        <div class="modal-botoes">
+
+            <button
+                    class="btn-cancelar"
+                    onclick="fecharEditar()">
+
+                Cancelar
+
+            </button>
+
+            <button
+                    class="btn-confirmar"
+                    onclick="salvarEdicao()">
+
+                Salvar
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+
+    let idEditar = null;
+
+    window.onload = listar;
+
+    async function listar(){
+
+    const resposta = await fetch("/canais");
+
+    const lista = await resposta.json();
+
+    let html = "";
+
+    lista.forEach(canal=>{
+
+        html += `
+
+        <tr>
+
+            <td>${canal.id}</td>
+
+            <td>${canal.nome}</td>
+
+            <td>
+
+                <button
+                    class="btn-editar"
+                    onclick="editar(${canal.id})">
+
+                    ✏️
+
+                </button>
+
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+    document
+        .getElementById("listaCanais")
+        .innerHTML = html;
+
+}
+
+    async function salvarCanal(){
+
+        const nome =
+            document.getElementById("nomeCanal").value;
+
+        if(nome===""){
+
+            mostrarToast("Digite o nome.");
+
+            return;
+
+        }
+
+        const resposta =
+            await fetch("/canais",{
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+
+                    nome:nome
+
+                })
+
+            });
+
+        if(resposta.ok){
+
+            document
+                .getElementById("nomeCanal")
+                .value="";
+
+            mostrarToast("Canal salvo com sucesso.");
+
+            listar();
+
+        }else{
+
+            mostrarToast("Erro ao salvar.");
+
+        }
+
+    }
+
+    async function editar(id){
+
+        idEditar=id;
+
+        const resposta =
+            await fetch("/canais/"+id);
+
+        const canal =
+            await resposta.json();
+
+        document
+            .getElementById("editarNome")
+            .value=canal.nome;
+
+        document
+            .getElementById("modalEditar")
+            .style.display="flex";
+
+    }
+
+    function fecharEditar(){
+
+        document
+            .getElementById("modalEditar")
+            .style.display="none";
+
+    }
+
+    async function salvarEdicao(){
+
+        const nome =
+            document.getElementById("editarNome").value;
+
+        const resposta =
+            await fetch("/canais/"+idEditar,{
+
+                method:"PUT",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+
+                    nome:nome
+
+                })
+
+            });
+
+        fecharEditar();
+
+        if(resposta.ok){
+
+            mostrarToast("Canal atualizado.");
+
+            listar();
+
+        }else{
+
+            mostrarToast("Erro.");
+
+        }
+
+    }
+
+
+    function mostrarToast(texto){
+
+        const toast =
+            document.getElementById("toast");
+
+        toast.innerHTML=texto;
+
+        toast.classList.add("mostrar");
+
+        setTimeout(()=>{
+
+            toast.classList.remove("mostrar");
+
+        },2500);
+
+    }
+
+</script>
+
 </body>
+
 </html>

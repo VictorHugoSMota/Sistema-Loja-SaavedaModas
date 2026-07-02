@@ -36,4 +36,13 @@ public class CanalRecebimentoService {
 
             return canalRecebimentoRepository.save(canalRecebimento);
         }
+
+        public void excluir(Long id){
+
+            CanalRecebimento canalRecebimento =
+                    buscarPorId(id);
+
+            canalRecebimentoRepository.delete(canalRecebimento);
+
+    }
 }
