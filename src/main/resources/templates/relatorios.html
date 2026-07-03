@@ -2,12 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatórios</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-
 </head>
 
 <body>
@@ -20,10 +18,10 @@
 <div class="container">
 
     <div class="menu">
-        <a href="/home-page">🏠 Home</a>
-        <a href="/lancamentos-page">💰 Nova Venda</a>
-        <a href="/historico-page">📋 Histórico</a>
-        <a href="/relatorios-page">📊 Relatórios</a>
+        <a href="/home-page"> Home</a>
+        <a href="/lancamentos-page"> Nova Venda</a>
+        <a href="/historico-page"> Histórico</a>
+        <a href="/relatorios-page"> Relatórios</a>
         <a href="/canais-page">⚙️ Canais</a>
     </div>
 
@@ -32,11 +30,13 @@
         <div class="card">
 
             <h1>Relatórios de Vendas</h1>
+
             <p>Escolha o tipo do relatório.</p>
 
             <hr>
 
             <label>Tipo do relatório</label>
+
             <select id="tipoRelatorio" onchange="alterarTipo()">
                 <option value="diario">Diário</option>
                 <option value="periodo">Período</option>
@@ -51,12 +51,14 @@
             <div id="filtroPeriodo" style="display:none;">
                 <label>Data Inicial</label>
                 <input type="date" id="dataInicio">
+
                 <label>Data Final</label>
                 <input type="date" id="dataFim">
             </div>
 
             <div id="filtroDiversos" style="display:none;">
                 <label>Tipo</label>
+
                 <select id="tipoDiverso">
                     <option value="mes-atual">Mês Atual</option>
                     <option value="ultimos-30-dias">Últimos 30 Dias</option>
@@ -71,106 +73,163 @@
             <hr>
 
             <h2>Resumo</h2>
+
             <div id="resumo" class="resumo-card">
                 <span class="tituloResumo">Total Vendido</span>
                 <h1>R$ 0,00</h1>
             </div>
 
             <h2>Totais por Canal</h2>
+
             <div id="cardsCanais" class="cards-canais"></div>
 
-<!--            &lt;!&ndash; wrapper garante scroll horizontal no mobile &ndash;&gt;-->
-<!--            <div class="tabela-wrapper">-->
-<!--                <table>-->
-<!--                    <thead>-->
-<!--                    <tr>-->
-<!--                        <th>Canal</th>-->
-<!--                        <th>Valor</th>-->
-<!--                    </tr>-->
-<!--                    </thead>-->
-<!--                    <tbody id="tabelaCanais"></tbody>-->
-<!--                </table>-->
-<!--            </div>-->
         </div>
 
     </div>
 
 </div>
 
+<div id="toast"></div>
+
+<script th:src="@{/js/app.js}"></script>
+
 <script>
+    window.addEventListener("load", function () {
+        protegerPagina();
+        preencherDatas();
+    });
 
-    function alterarTipo(){
-        const tipo = document.getElementById("tipoRelatorio").value;
+    function preencherDatas() {
+        const hoje = new Date();
 
-        document.getElementById("filtroDiario").style.display  = "none";
-        document.getElementById("filtroPeriodo").style.display = "none";
-        document.getElementById("filtroDiversos").style.display= "none";
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+        const dia = String(hoje.getDate()).padStart(2, "0");
 
-        if(tipo === "diario")   document.getElementById("filtroDiario").style.display   = "block";
-        if(tipo === "periodo")  document.getElementById("filtroPeriodo").style.display  = "block";
-        if(tipo === "diversos") document.getElementById("filtroDiversos").style.display = "block";
+        const dataHoje = `${ano}-${mes}-${dia}`;
+
+        document.getElementById("data").value = dataHoje;
+        document.getElementById("dataFim").value = dataHoje;
+        document.getElementById("dataInicio").value = `${ano}-${mes}-01`;
     }
 
-    async function buscarRelatorio(){
+    function alterarTipo() {
         const tipo = document.getElementById("tipoRelatorio").value;
+
+        document.getElementById("filtroDiario").style.display = "none";
+        document.getElementById("filtroPeriodo").style.display = "none";
+        document.getElementById("filtroDiversos").style.display = "none";
+
+        if (tipo === "diario") {
+            document.getElementById("filtroDiario").style.display = "block";
+        }
+
+        if (tipo === "periodo") {
+            document.getElementById("filtroPeriodo").style.display = "block";
+        }
+
+        if (tipo === "diversos") {
+            document.getElementById("filtroDiversos").style.display = "block";
+        }
+    }
+
+    async function buscarRelatorio() {
+        const tipo = document.getElementById("tipoRelatorio").value;
+
         let url = "";
 
-        if(tipo === "diario"){
+        if (tipo === "diario") {
             const data = document.getElementById("data").value;
+
+            if (!data) {
+                mostrarToast("⚠️ Informe uma data.");
+                return;
+            }
+
             url = "/relatorios/diario?data=" + data;
         }
 
-        if(tipo === "periodo"){
+        if (tipo === "periodo") {
             const inicio = document.getElementById("dataInicio").value;
-            const fim    = document.getElementById("dataFim").value;
+            const fim = document.getElementById("dataFim").value;
+
+            if (!inicio || !fim) {
+                mostrarToast("⚠️ Informe a data inicial e final.");
+                return;
+            }
+
             url = "/relatorios/periodo?dataInicio=" + inicio + "&dataFim=" + fim;
         }
 
-        if(tipo === "diversos"){
+        if (tipo === "diversos") {
             const opcao = document.getElementById("tipoDiverso").value;
             url = "/relatorios/" + opcao;
         }
 
-        const resposta  = await fetch(url);
+        const resposta = await apiFetch(url);
+
+        if (!resposta) {
+            return;
+        }
+
+        if (!resposta.ok) {
+            mostrarToast("❌ Erro ao gerar relatório.");
+            return;
+        }
+
         const relatorio = await resposta.json();
 
         preencherResumo(relatorio);
-        preencherTabela(relatorio);
+        preencherCards(relatorio);
     }
 
-    function preencherResumo(relatorio){
+    function preencherResumo(relatorio) {
         document.getElementById("resumo").innerHTML = `
             <span class="tituloResumo">Total Vendido</span>
-            <h1>R$ ${Number(relatorio.total).toLocaleString("pt-BR",{ minimumFractionDigits:2 })}</h1>
+            <h1>R$ ${Number(relatorio.total || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</h1>
         `;
     }
 
-    function preencherTabela(relatorio){
-        let cards  = "";
-        let tabela = "";
+    function preencherCards(relatorio) {
+        let cards = "";
 
-        relatorio.itens.forEach(item => {
-            const valor = Number(item.valor).toLocaleString("pt-BR",{ minimumFractionDigits:2 });
-
-            cards += `
+        if (!relatorio.itens || relatorio.itens.length === 0) {
+            cards = `
                 <div class="canal-card">
-                    <span>${item.canalRecebimento}</span>
-                    <h2>R$ ${valor}</h2>
+                    <span>Nenhum dado encontrado</span>
+                    <h2>R$ 0,00</h2>
                 </div>
             `;
+        } else {
+            relatorio.itens.forEach(item => {
+                const valor = Number(item.valor || 0).toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2
+                });
 
-            tabela += `
-                <tr>
-                    <td>${item.canalRecebimento}</td>
-                    <td>R$ ${valor}</td>
-                </tr>
-            `;
-        });
+                const canal = item.canal || item.canalRecebimento || "Canal";
 
-        document.getElementById("cardsCanais").innerHTML  = cards;
-        document.getElementById("tabelaCanais").innerHTML = tabela;
+                cards += `
+                    <div class="canal-card">
+                        <span>${canal}</span>
+                        <h2>R$ ${valor}</h2>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById("cardsCanais").innerHTML = cards;
     }
 
+    function mostrarToast(texto) {
+        const toast = document.getElementById("toast");
+
+        toast.innerHTML = texto;
+        toast.classList.add("mostrar");
+
+        setTimeout(() => {
+            toast.classList.remove("mostrar");
+        }, 2500);
+    }
 </script>
 
 </body>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
 
 <head>
     <meta charset="UTF-8">
@@ -8,10 +8,11 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
-<body onload="carregarHoje()">
+<body>
 
 <div class="topbar">
     <div class="logo">SAAVEDRA MODAS</div>
+    <div class="usuario">Victor Hugo / Ana Paula</div>
 </div>
 
 <div class="container">
@@ -25,19 +26,24 @@
     </div>
 
     <div class="conteudo">
+
         <div class="card">
 
             <h2>Histórico de Vendas</h2>
 
             <div class="filtro-busca">
+
                 <div>
-                    <label>Pesquisar por data</label>
+                    <label for="data">Pesquisar por data</label>
                     <input type="date" id="data">
                 </div>
+
                 <button class="btn-buscar" onclick="buscar()">Buscar</button>
+
             </div>
 
             <div class="tabela-wrapper">
+
                 <table>
                     <thead>
                     <tr>
@@ -47,91 +53,165 @@
                         <th>Ações</th>
                     </tr>
                     </thead>
+
                     <tbody id="resultado"></tbody>
                 </table>
+
             </div>
 
             <p id="totalVendas" style="margin-top:20px;font-weight:bold;"></p>
 
         </div>
+
     </div>
 
 </div>
 
+<!-- ================= MODAL EXCLUIR ================= -->
 <div id="modalExcluir" class="modal">
+
     <div class="modal-box">
+
         <h2>Excluir Venda</h2>
+
         <p>Tem certeza que deseja excluir esta venda?</p>
+
         <div class="modal-botoes">
             <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
             <button class="btn-confirmar" onclick="confirmarExclusao()">Excluir</button>
         </div>
+
     </div>
+
 </div>
 
+<!-- ================= MODAL EDITAR ================= -->
 <div id="modalEditar" class="modal">
+
     <div class="modal-box">
+
         <h2>Editar Venda</h2>
-        <label>Valor</label>
+
+        <label for="editarValor">Valor</label>
         <input type="number" id="editarValor" step="0.01">
-        <label>Data</label>
+
+        <label for="editarData">Data</label>
         <input type="date" id="editarData">
-        <label>Canal</label>
+
+        <label for="editarCanal">Canal</label>
         <select id="editarCanal"></select>
+
         <div class="modal-botoes">
             <button class="btn-cancelar" onclick="fecharModalEditar()">Cancelar</button>
             <button class="btn-confirmar" onclick="salvarEdicao()">Salvar</button>
         </div>
+
     </div>
+
 </div>
 
 <div id="toast"></div>
 
+<script th:src="@{/js/app.js}"></script>
+
 <script>
+    let idEditar = null;
+    let idExcluir = null;
+
+    window.addEventListener("load", function () {
+        protegerPagina();
+        carregarHoje();
+    });
 
     async function buscar() {
         const data = document.getElementById("data").value;
-        const resposta = await fetch("/lancamentos/data?data=" + data);
+
+        if (!data) {
+            mostrarToast("⚠️ Informe uma data para pesquisar.");
+            return;
+        }
+
+        const resposta = await apiFetch("/lancamentos/data?data=" + data);
+
+        if (!resposta) {
+            return;
+        }
+
+        if (!resposta.ok) {
+            mostrarToast("❌ Erro ao buscar vendas.");
+            return;
+        }
+
         const lista = await resposta.json();
 
         let html = "";
 
         if (lista.length === 0) {
-            html = `<tr><td colspan="4">Nenhuma venda encontrada.</td></tr>`;
+            html = `
+                <tr>
+                    <td colspan="4">Nenhuma venda encontrada.</td>
+                </tr>
+            `;
         } else {
             lista.forEach(venda => {
                 const dataFormatada = venda.data.split("-").reverse().join("/");
+
                 html += `
-                <tr>
-                    <td>${dataFormatada}</td>
-                    <td>${venda.canalRecebimento.nome}</td>
-                    <td>R$ ${Number(venda.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
-                    <td>
-                        <button class="btn-editar" onclick="editar(${venda.id})">✏️</button>
-                        <button class="btn-excluir" onclick="excluirVenda(${venda.id})">🗑️</button>
-                    </td>
-                </tr>`;
+                    <tr>
+                        <td>${dataFormatada}</td>
+                        <td>${venda.canalRecebimento.nome}</td>
+                        <td>R$ ${Number(venda.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                        <td>
+                            <button class="btn-editar" onclick="editar(${venda.id})">✏️</button>
+                            <button class="btn-excluir" onclick="excluirVenda(${venda.id})">🗑️</button>
+                        </td>
+                    </tr>
+                `;
             });
         }
 
         document.getElementById("resultado").innerHTML = html;
-        document.getElementById("totalVendas").innerHTML = "Total de vendas encontradas: <b>" + lista.length + "</b>";
+        document.getElementById("totalVendas").innerHTML =
+            "Total de vendas encontradas: <b>" + lista.length + "</b>";
     }
-
-    let idEditar = null;
 
     async function editar(id) {
         idEditar = id;
 
-        const respostaVenda = await fetch("/lancamentos/" + id);
+        const respostaVenda = await apiFetch("/lancamentos/" + id);
+
+        if (!respostaVenda) {
+            return;
+        }
+
+        if (!respostaVenda.ok) {
+            mostrarToast("❌ Erro ao buscar venda.");
+            return;
+        }
+
         const venda = await respostaVenda.json();
 
-        const respostaCanais = await fetch("/canais");
+        const respostaCanais = await apiFetch("/canais");
+
+        if (!respostaCanais) {
+            return;
+        }
+
+        if (!respostaCanais.ok) {
+            mostrarToast("❌ Erro ao buscar canais.");
+            return;
+        }
+
         const canais = await respostaCanais.json();
 
         let options = "";
+
         canais.forEach(canal => {
-            options += `<option value="${canal.id}" ${canal.id == venda.canalRecebimento.id ? "selected" : ""}>${canal.nome}</option>`;
+            options += `
+                <option value="${canal.id}" ${canal.id == venda.canalRecebimento.id ? "selected" : ""}>
+                    ${canal.nome}
+                </option>
+            `;
         });
 
         document.getElementById("editarCanal").innerHTML = options;
@@ -139,8 +219,6 @@
         document.getElementById("editarData").value = venda.data;
         document.getElementById("modalEditar").style.display = "flex";
     }
-
-    let idExcluir = null;
 
     function excluirVenda(id) {
         idExcluir = id;
@@ -156,19 +234,36 @@
     }
 
     async function salvarEdicao() {
+        const valor = Number(document.getElementById("editarValor").value);
+        const data = document.getElementById("editarData").value;
+        const canalRecebimentoId = Number(document.getElementById("editarCanal").value);
+
+        if (!valor || valor <= 0) {
+            mostrarToast("⚠️ Informe um valor válido.");
+            return;
+        }
+
+        if (!data) {
+            mostrarToast("⚠️ Informe uma data válida.");
+            return;
+        }
+
         const body = {
-            valor: Number(document.getElementById("editarValor").value),
-            data: document.getElementById("editarData").value,
-            canalRecebimentoId: Number(document.getElementById("editarCanal").value)
+            valor: valor,
+            data: data,
+            canalRecebimentoId: canalRecebimentoId
         };
 
-        const resposta = await fetch("/lancamentos/" + idEditar, {
+        const resposta = await apiFetch("/lancamentos/" + idEditar, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body)
         });
 
         fecharModalEditar();
+
+        if (!resposta) {
+            return;
+        }
 
         if (resposta.ok) {
             mostrarToast("✅ Venda atualizada com sucesso!");
@@ -179,8 +274,15 @@
     }
 
     async function confirmarExclusao() {
-        const resposta = await fetch("/lancamentos/" + idExcluir, { method: "DELETE" });
+        const resposta = await apiFetch("/lancamentos/" + idExcluir, {
+            method: "DELETE"
+        });
+
         fecharModal();
+
+        if (!resposta) {
+            return;
+        }
 
         if (resposta.ok) {
             mostrarToast("✅ Venda excluída com sucesso!");
@@ -192,21 +294,28 @@
 
     function mostrarToast(texto) {
         const toast = document.getElementById("toast");
+
         toast.innerHTML = texto;
         toast.classList.add("mostrar");
-        setTimeout(() => toast.classList.remove("mostrar"), 2500);
+
+        setTimeout(() => {
+            toast.classList.remove("mostrar");
+        }, 2500);
     }
 
-function carregarHoje() {
-    const hoje = new Date();
-    const ano = hoje.getFullYear();
-    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
-    const dia = String(hoje.getDate()).padStart(2, "0");
-    const data = `${ano}-${mes}-${dia}`;
-    document.getElementById("data").value = data;
-    buscar();
-}
+    function carregarHoje() {
+        const hoje = new Date();
 
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+        const dia = String(hoje.getDate()).padStart(2, "0");
+
+        const data = `${ano}-${mes}-${dia}`;
+
+        document.getElementById("data").value = data;
+
+        buscar();
+    }
 </script>
 
 </body>

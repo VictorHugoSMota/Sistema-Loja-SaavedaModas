@@ -1,13 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Saavedra Modas</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body class="login-body">
+
+<div class="login-container">
+
+    <div class="login-card">
+
+        <h1>SAAVEDRA MODAS</h1>
+        <p>Sistema de Faturamento Diário</p>
+
+        <form id="loginForm">
+
+            <label for="username">Usuário</label>
+            <input id="username" type="text" placeholder="Digite seu usuário" required>
+
+            <label for="password">Senha</label>
+            <input id="password" type="password" placeholder="Digite sua senha" required>
+
+            <button type="submit" class="btn-verde">
+                Entrar
+            </button>
+
+        </form>
+
+        <div id="mensagemErro" class="mensagem-erro"></div>
+
+    </div>
+
+</div>
+
+<script th:src="@{/js/app.js}"></script>
+
 <script>
-
-    document
-    .getElementById("loginForm")
-    .addEventListener("submit", function(event){
-
+    document.getElementById("loginForm").addEventListener("submit", async function(event) {
         event.preventDefault();
 
-        window.location="/home-page";
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const mensagemErro = document.getElementById("mensagemErro");
 
+        mensagemErro.innerHTML = "";
+
+        if (!username || !password) {
+            mensagemErro.innerHTML = "Informe usuário e senha.";
+            return;
+        }
+
+        const dadosLogin = {
+            username: username,
+            password: password
+        };
+
+        try {
+            const resposta = await fetch("/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(dadosLogin)
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok || !dados.token) {
+                mensagemErro.innerHTML = dados.mensagem || "Usuário ou senha inválidos.";
+                return;
+            }
+
+            salvarToken(dados.token);
+
+            window.location.href = "/home-page";
+
+        } catch (erro) {
+            mensagemErro.innerHTML = "Erro ao tentar fazer login. Verifique se o sistema está rodando.";
+        }
     });
-
 </script>
+
+</body>
+</html>

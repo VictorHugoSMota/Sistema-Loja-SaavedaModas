@@ -1,95 +1,59 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Arial, Helvetica, sans-serif;
+const TOKEN_KEY = "saavedra_token";
+
+function salvarToken(token) {
+    localStorage.setItem(TOKEN_KEY, token);
 }
 
-body{
-    background:#f4f6f9;
+function buscarToken() {
+    return localStorage.getItem(TOKEN_KEY);
 }
 
-.topbar{
-    height:70px;
-    background:#1f5d3b;
-    color:white;
-
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-
-    padding:0 30px;
-
-    box-shadow:0 2px 8px rgba(0,0,0,.2);
+function removerToken() {
+    localStorage.removeItem(TOKEN_KEY);
 }
 
-.logo{
-    font-size:24px;
-    font-weight:bold;
+function usuarioEstaLogado() {
+    return buscarToken() !== null && buscarToken() !== "";
 }
 
-.usuario{
-    font-size:16px;
+function logout() {
+    removerToken();
+    window.location.href = "/";
 }
 
-.container{
+function headersAutenticados(headersExtras = {}) {
+    const token = buscarToken();
 
-    display:flex;
+    const headers = {
+        "Content-Type": "application/json",
+        ...headersExtras
+    };
 
+    if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    return headers;
 }
 
-.menu{
+async function apiFetch(url, options = {}) {
+    const resposta = await fetch(url, {
+        ...options,
+        headers: headersAutenticados(options.headers || {})
+    });
 
-    width:240px;
-    background:white;
-    min-height:calc(100vh - 70px);
+    if (resposta.status === 401 || resposta.status === 403) {
+        removerToken();
+        alert("Sua sessão expirou ou você não está autorizado. Faça login novamente.");
+        window.location.href = "/";
+        return;
+    }
 
-    box-shadow:2px 0 8px rgba(0,0,0,.1);
-
-    padding-top:30px;
-
+    return resposta;
 }
 
-.menu a{
-
-    display:block;
-
-    padding:18px 25px;
-
-    color:#333;
-
-    text-decoration:none;
-
-    transition:.3s;
-
-    font-size:17px;
-
-}
-
-.menu a:hover{
-
-    background:#1f5d3b;
-
-    color:white;
-
-}
-
-.conteudo{
-
-    flex:1;
-
-    padding:40px;
-
-}
-
-.card{
-
-    background:white;
-
-    border-radius:12px;
-
-    padding:30px;
-
-    box-shadow:0 3px 10px rgba(0,0,0,.1);
-
+function protegerPagina() {
+    if (!usuarioEstaLogado()) {
+        window.location.href = "/";
+    }
 }

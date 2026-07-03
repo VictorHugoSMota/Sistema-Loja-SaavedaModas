@@ -1,40 +1,28 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
 
 <head>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Canais de Recebimento</title>
-
-    <link rel="stylesheet"
-          th:href="@{/css/style.css}">
-
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
 
 <div class="topbar">
-
-    <div class="logo">
-
-        SAAVEDRA MODAS
-
-    </div>
-
+    <div class="logo">SAAVEDRA MODAS</div>
+    <div class="usuario">Victor Hugo / Ana Paula</div>
 </div>
 
 <div class="container">
 
     <div class="menu">
-
         <a href="/home-page">🏠 Home</a>
         <a href="/lancamentos-page">💰 Nova Venda</a>
         <a href="/historico-page">📋 Histórico</a>
         <a href="/relatorios-page">📊 Relatórios</a>
         <a href="/canais-page">⚙️ Canais</a>
-
     </div>
 
     <div class="conteudo">
@@ -45,19 +33,16 @@
 
             <br>
 
-            <label>Nome do Canal</label>
-
+            <label for="nomeCanal">Nome do Canal</label>
             <input
                     type="text"
                     id="nomeCanal"
-                    placeholder="Ex.: PIX">
+                    placeholder="Ex.: PIX PagBank Paula">
 
             <button
                     class="btn-verde"
                     onclick="salvarCanal()">
-
                 Salvar Canal
-
             </button>
 
             <br><br>
@@ -65,23 +50,15 @@
             <div class="tabela-wrapper">
 
                 <table>
-
                     <thead>
-
                     <tr>
-
                         <th>ID</th>
                         <th>Nome</th>
                         <th>Ações</th>
-
                     </tr>
-
                     </thead>
 
-                    <tbody id="listaCanais">
-
-                    </tbody>
-
+                    <tbody id="listaCanais"></tbody>
                 </table>
 
             </div>
@@ -92,228 +69,186 @@
 
 </div>
 
+<!-- ================= MODAL EDITAR ================= -->
 <div id="modalEditar" class="modal">
 
     <div class="modal-box">
 
         <h2>Editar Canal</h2>
 
-        <label>Nome</label>
-
+        <label for="editarNome">Nome</label>
         <input
                 type="text"
                 id="editarNome">
 
         <div class="modal-botoes">
-
             <button
                     class="btn-cancelar"
                     onclick="fecharEditar()">
-
                 Cancelar
-
             </button>
 
             <button
                     class="btn-confirmar"
                     onclick="salvarEdicao()">
-
                 Salvar
-
             </button>
-
         </div>
 
     </div>
 
 </div>
 
-</div>
-
 <div id="toast"></div>
 
-<script>
+<script th:src="@{/js/app.js}"></script>
 
+<script>
     let idEditar = null;
 
-    window.onload = listar;
+    window.addEventListener("load", function () {
+        protegerPagina();
 
-    async function listar(){
-
-    const resposta = await fetch("/canais");
-
-    const lista = await resposta.json();
-
-    let html = "";
-
-    lista.forEach(canal=>{
-
-        html += `
-
-        <tr>
-
-            <td>${canal.id}</td>
-
-            <td>${canal.nome}</td>
-
-            <td>
-
-                <button
-                    class="btn-editar"
-                    onclick="editar(${canal.id})">
-
-                    ✏️
-
-                </button>
-
-            </td>
-
-        </tr>
-
-        `;
-
+        if (usuarioEstaLogado()) {
+            listar();
+        }
     });
 
-    document
-        .getElementById("listaCanais")
-        .innerHTML = html;
+    async function listar() {
+        const resposta = await apiFetch("/canais");
 
-}
-
-    async function salvarCanal(){
-
-        const nome =
-            document.getElementById("nomeCanal").value;
-
-        if(nome===""){
-
-            mostrarToast("Digite o nome.");
-
+        if (!resposta) {
             return;
-
         }
 
-        const resposta =
-            await fetch("/canais",{
+        if (!resposta.ok) {
+            mostrarToast("❌ Erro ao carregar canais.");
+            return;
+        }
 
-                method:"POST",
+        const lista = await resposta.json();
 
-                headers:{
-                    "Content-Type":"application/json"
-                },
+        let html = "";
 
-                body:JSON.stringify({
-
-                    nome:nome
-
-                })
-
+        if (lista.length === 0) {
+            html = `
+                <tr>
+                    <td colspan="3">Nenhum canal cadastrado.</td>
+                </tr>
+            `;
+        } else {
+            lista.forEach(canal => {
+                html += `
+                    <tr>
+                        <td>${canal.id}</td>
+                        <td>${canal.nome}</td>
+                        <td>
+                            <button
+                                    class="btn-editar"
+                                    onclick="editar(${canal.id})">
+                                ✏️
+                            </button>
+                        </td>
+                    </tr>
+                `;
             });
+        }
 
-        if(resposta.ok){
+        document.getElementById("listaCanais").innerHTML = html;
+    }
 
-            document
-                .getElementById("nomeCanal")
-                .value="";
+    async function salvarCanal() {
+        const nome = document.getElementById("nomeCanal").value.trim();
 
-            mostrarToast("Canal salvo com sucesso.");
+        if (nome === "") {
+            mostrarToast("⚠️ Digite o nome do canal.");
+            return;
+        }
 
+        const resposta = await apiFetch("/canais", {
+            method: "POST",
+            body: JSON.stringify({
+                nome: nome
+            })
+        });
+
+        if (!resposta) {
+            return;
+        }
+
+        if (resposta.ok) {
+            document.getElementById("nomeCanal").value = "";
+            mostrarToast("✅ Canal salvo com sucesso.");
             listar();
+        } else {
+            mostrarToast("❌ Erro ao salvar canal.");
+        }
+    }
 
-        }else{
+    async function editar(id) {
+        idEditar = id;
 
-            mostrarToast("Erro ao salvar.");
+        const resposta = await apiFetch("/canais/" + id);
 
+        if (!resposta) {
+            return;
         }
 
+        if (!resposta.ok) {
+            mostrarToast("❌ Erro ao buscar canal.");
+            return;
+        }
+
+        const canal = await resposta.json();
+
+        document.getElementById("editarNome").value = canal.nome;
+        document.getElementById("modalEditar").style.display = "flex";
     }
 
-    async function editar(id){
-
-        idEditar=id;
-
-        const resposta =
-            await fetch("/canais/"+id);
-
-        const canal =
-            await resposta.json();
-
-        document
-            .getElementById("editarNome")
-            .value=canal.nome;
-
-        document
-            .getElementById("modalEditar")
-            .style.display="flex";
-
+    function fecharEditar() {
+        document.getElementById("modalEditar").style.display = "none";
     }
 
-    function fecharEditar(){
+    async function salvarEdicao() {
+        const nome = document.getElementById("editarNome").value.trim();
 
-        document
-            .getElementById("modalEditar")
-            .style.display="none";
+        if (nome === "") {
+            mostrarToast("⚠️ Digite o nome do canal.");
+            return;
+        }
 
-    }
-
-    async function salvarEdicao(){
-
-        const nome =
-            document.getElementById("editarNome").value;
-
-        const resposta =
-            await fetch("/canais/"+idEditar,{
-
-                method:"PUT",
-
-                headers:{
-                    "Content-Type":"application/json"
-                },
-
-                body:JSON.stringify({
-
-                    nome:nome
-
-                })
-
-            });
+        const resposta = await apiFetch("/canais/" + idEditar, {
+            method: "PUT",
+            body: JSON.stringify({
+                nome: nome
+            })
+        });
 
         fecharEditar();
 
-        if(resposta.ok){
-
-            mostrarToast("Canal atualizado.");
-
-            listar();
-
-        }else{
-
-            mostrarToast("Erro.");
-
+        if (!resposta) {
+            return;
         }
 
+        if (resposta.ok) {
+            mostrarToast("✅ Canal atualizado com sucesso.");
+            listar();
+        } else {
+            mostrarToast("❌ Erro ao atualizar canal.");
+        }
     }
 
+    function mostrarToast(texto) {
+        const toast = document.getElementById("toast");
 
-    function mostrarToast(texto){
-
-        const toast =
-            document.getElementById("toast");
-
-        toast.innerHTML=texto;
-
+        toast.innerHTML = texto;
         toast.classList.add("mostrar");
 
-        setTimeout(()=>{
-
+        setTimeout(() => {
             toast.classList.remove("mostrar");
-
-        },2500);
-
+        }, 2500);
     }
-
 </script>
 
 </body>
-
 </html>
