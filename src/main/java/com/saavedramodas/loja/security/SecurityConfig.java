@@ -22,7 +22,25 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers(
+                                "/",
+                                "/home-page",
+                                "/lancamentos-page",
+                                "/historico-page",
+                                "/relatorios-page",
+                                "/canais-page",
+
+                                "/auth/**",
+
+                                "/home",
+                                "/lancamentos/**",
+                                "/relatorios/**",
+                                "/canais/**",
+
+                                "/css/**",
+                                "/js/**",
+                                "/img/**"
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(
