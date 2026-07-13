@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiados - Saavedra Modas</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body onload="carregarPaginaFiados()">
+
+<div class="topbar">
+    <div class="logo">Saavedra Modas</div>
+    <div class="usuario">Controle de Fiados</div>
+</div>
+
+<div class="container">
+
+    <div class="menu">
+        <a href="/home-page">🏠 Home</a>
+        <a href="/lancamentos-page">💰 Nova Venda</a>
+        <a href="/historico-page">📋 Histórico</a>
+        <a href="/relatorios-page">📊 Relatórios</a>
+        <a href="/fiados-page" class="ativo">🧾 Fiados</a>
+        <a href="/canais-page">⚙️ Canais</a>
+    </div>
+
+    <main class="conteudo">
+
+        <section class="card">
+
+            <div class="cabecalho-fiados">
+                <div>
+                    <h1>Controle de Fiados</h1>
+                    <p>Cadastre, acompanhe e gerencie os fiados da loja.</p>
+                </div>
+
+                <button type="button" class="btn-cadastrar-fiado" onclick="abrirModalCadastro()">
+                    Cadastrar Fiado
+                </button>
+            </div>
+
+            <hr>
+
+            <div class="cards-canais cards-fiados-resumo">
+                <div class="canal-card">
+                    <span>Total em Aberto</span>
+                    <h2 id="totalAberto">R$ 0,00</h2>
+                </div>
+
+                <div class="canal-card">
+                    <span>Fiados Pendentes</span>
+                    <h2 id="qtdPendentes">0</h2>
+                </div>
+            </div>
+
+            <h2>Lista de Fiados</h2>
+
+            <div class="tabela-wrapper tabela-wrapper-fiados">
+                <table class="tabela-fiados">
+                    <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Valor</th>
+                        <th>Data que pegou</th>
+                        <th>Data para pagar</th>
+                        <th>Ações</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="tabelaFiados">
+                    <tr>
+                        <td colspan="5">Carregando fiados...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<div id="modalFiado" class="modal">
+    <div class="modal-box">
+
+        <h2 id="tituloModal">Cadastrar Fiado</h2>
+
+        <form id="formFiado">
+            <input type="hidden" id="fiadoId">
+
+            <label for="nomeCliente">Nome do cliente</label>
+            <input type="text" id="nomeCliente" required>
+
+            <label for="valor">Valor</label>
+            <input type="number" id="valor" step="0.01" min="0.01" required>
+
+            <label for="dataPegou">Data que pegou</label>
+            <input type="date" id="dataPegou" required>
+
+            <label for="dataVencimento">Data que tem que pagar</label>
+            <input type="date" id="dataVencimento" required>
+
+            <label for="descricao">Descrição</label>
+            <textarea id="descricao" maxlength="500" rows="4" placeholder="Ex: pegou uma calça jeans e duas blusas"></textarea>
+
+            <div class="modal-botoes">
+                <button type="button" class="btn-cancelar" onclick="fecharModalCadastro()">Cancelar</button>
+                <button type="submit">Salvar</button>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<div id="modalDetalhes" class="modal">
+    <div class="modal-box">
+
+        <h2>Detalhes do Fiado</h2>
+
+        <div id="conteudoDetalhes" class="detalhes-fiado"></div>
+
+        <div class="modal-botoes">
+            <button type="button" class="btn-cancelar" onclick="fecharModalDetalhes()">Fechar</button>
+        </div>
+
+    </div>
+</div>
+
+<div id="modalConfirmacao" class="modal">
+    <div class="modal-box">
+
+        <h2 id="tituloConfirmacao">Confirmar ação</h2>
+
+        <p id="mensagemConfirmacao"></p>
+
+        <div class="modal-botoes">
+            <button type="button" class="btn-cancelar" onclick="fecharModalConfirmacao()">Cancelar</button>
+            <button type="button" class="btn-confirmar" id="btnConfirmarAcao" onclick="confirmarAcao()">Confirmar</button>
+        </div>
+
+    </div>
+</div>
+
+<div id="toast"></div>
+
+<script th:src="@{/js/app.js}"></script>
+
+<script>
+    let fiados = [];
+    let acaoConfirmada = null;
+
+    function carregarPaginaFiados() {
+        protegerPagina();
+
+        if (!usuarioEstaLogado()) {
+            return;
+        }
+
+        carregarFiados();
+    }
+
+    async function carregarFiados() {
+        const resposta = await apiFetch("/fiados");
+
+        if (!resposta || !resposta.ok) {
+            mostrarToast("Erro ao carregar fiados.");
+            return;
+        }
+
+        const dados = await resposta.json();
+
+        fiados = dados.filter(fiado => fiado.status === "PENDENTE");
+
+        atualizarResumo();
+        renderizarTabela();
+    }
+
+    function atualizarResumo() {
+        const totalAberto = fiados.reduce((total, fiado) => {
+            return total + Number(fiado.valor);
+        }, 0);
+
+        document.getElementById("totalAberto").innerText = formatarMoeda(totalAberto);
+        document.getElementById("qtdPendentes").innerText = fiados.length;
+    }
+
+    function renderizarTabela() {
+        const tbody = document.getElementById("tabelaFiados");
+        tbody.innerHTML = "";
+
+        if (fiados.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5">Nenhum fiado cadastrado.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        fiados.forEach(fiado => {
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+                <td data-label="Cliente">${escaparTexto(fiado.nomeCliente)}</td>
+                <td data-label="Valor">${formatarMoeda(fiado.valor)}</td>
+                <td data-label="Data que pegou">${formatarData(fiado.dataPegou)}</td>
+                <td data-label="Data para pagar">${formatarData(fiado.dataVencimento)}</td>
+                <td data-label="Ações" class="coluna-acoes">
+                    <div class="acoes-fiado">
+                        <button type="button" class="btn-editar" title="Ver detalhes" onclick="verDetalhes(${fiado.id})">🔍</button>
+                        <button type="button" class="btn-editar" title="Editar" onclick="abrirModalEdicao(${fiado.id})">✏️</button>
+                        <button type="button" class="btn-pagar" title="Marcar como pago" onclick="finalizarFiado(${fiado.id})">✅</button>
+                        <button type="button" class="btn-excluir" title="Excluir" onclick="excluirFiado(${fiado.id})">🗑️</button>
+                    </div>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        });
+    }
+
+    function abrirModalCadastro() {
+        document.getElementById("tituloModal").innerText = "Cadastrar Fiado";
+        document.getElementById("formFiado").reset();
+        document.getElementById("fiadoId").value = "";
+        document.getElementById("modalFiado").style.display = "flex";
+    }
+
+    function abrirModalEdicao(id) {
+        const fiado = fiados.find(item => item.id === id);
+
+        if (!fiado) {
+            mostrarToast("Fiado não encontrado.");
+            return;
+        }
+
+        document.getElementById("tituloModal").innerText = "Editar Fiado";
+        document.getElementById("fiadoId").value = fiado.id;
+        document.getElementById("nomeCliente").value = fiado.nomeCliente;
+        document.getElementById("valor").value = fiado.valor;
+        document.getElementById("dataPegou").value = fiado.dataPegou;
+        document.getElementById("dataVencimento").value = fiado.dataVencimento;
+        document.getElementById("descricao").value = fiado.descricao || "";
+
+        document.getElementById("modalFiado").style.display = "flex";
+    }
+
+    function fecharModalCadastro() {
+        document.getElementById("modalFiado").style.display = "none";
+    }
+
+    document.getElementById("formFiado").addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const id = document.getElementById("fiadoId").value;
+
+        const fiado = {
+            nomeCliente: document.getElementById("nomeCliente").value.trim(),
+            valor: Number(document.getElementById("valor").value),
+            dataPegou: document.getElementById("dataPegou").value,
+            dataVencimento: document.getElementById("dataVencimento").value,
+            descricao: document.getElementById("descricao").value.trim()
+        };
+
+        if (fiado.dataVencimento < fiado.dataPegou) {
+            mostrarToast("A data de pagamento não pode ser antes da data que pegou.");
+            return;
+        }
+
+        const url = id ? `/fiados/${id}` : "/fiados";
+        const metodo = id ? "PUT" : "POST";
+
+        const resposta = await apiFetch(url, {
+            method: metodo,
+            body: JSON.stringify(fiado)
+        });
+
+        if (!resposta || !resposta.ok) {
+            mostrarToast("Erro ao salvar fiado.");
+            return;
+        }
+
+        fecharModalCadastro();
+        mostrarToast(id ? "Fiado atualizado com sucesso!" : "Fiado cadastrado com sucesso!");
+        carregarFiados();
+    });
+
+    function finalizarFiado(id) {
+        abrirModalConfirmacao(
+            "Confirmar pagamento",
+            "Confirma que este fiado foi pago? Ele será removido da lista.",
+            "Confirmar pagamento",
+            async function () {
+                const resposta = await apiFetch(`/fiados/${id}`, {
+                    method: "DELETE"
+                });
+
+                if (!resposta || !resposta.ok) {
+                    mostrarToast("Erro ao finalizar fiado.");
+                    return;
+                }
+
+                mostrarToast("Fiado pago e removido da lista!");
+                carregarFiados();
+            }
+        );
+    }
+
+    function excluirFiado(id) {
+        abrirModalConfirmacao(
+            "Excluir fiado",
+            "Deseja realmente excluir este fiado? Essa ação não poderá ser desfeita.",
+            "Excluir",
+            async function () {
+                const resposta = await apiFetch(`/fiados/${id}`, {
+                    method: "DELETE"
+                });
+
+                if (!resposta || !resposta.ok) {
+                    mostrarToast("Erro ao excluir fiado.");
+                    return;
+                }
+
+                mostrarToast("Fiado excluído com sucesso!");
+                carregarFiados();
+            }
+        );
+    }
+
+    function verDetalhes(id) {
+        const fiado = fiados.find(item => item.id === id);
+
+        if (!fiado) {
+            mostrarToast("Fiado não encontrado.");
+            return;
+        }
+
+        document.getElementById("conteudoDetalhes").innerHTML = `
+            <p><strong>Cliente:</strong> ${escaparTexto(fiado.nomeCliente)}</p>
+            <p><strong>Valor:</strong> ${formatarMoeda(fiado.valor)}</p>
+            <p><strong>Data que pegou:</strong> ${formatarData(fiado.dataPegou)}</p>
+            <p><strong>Data para pagar:</strong> ${formatarData(fiado.dataVencimento)}</p>
+            <p><strong>Descrição:</strong> ${fiado.descricao ? escaparTexto(fiado.descricao) : "Sem descrição"}</p>
+        `;
+
+        document.getElementById("modalDetalhes").style.display = "flex";
+    }
+
+    function fecharModalDetalhes() {
+        document.getElementById("modalDetalhes").style.display = "none";
+    }
+
+    function abrirModalConfirmacao(titulo, mensagem, textoBotao, callback) {
+        document.getElementById("tituloConfirmacao").innerText = titulo;
+        document.getElementById("mensagemConfirmacao").innerText = mensagem;
+        document.getElementById("btnConfirmarAcao").innerText = textoBotao;
+
+        acaoConfirmada = callback;
+
+        document.getElementById("modalConfirmacao").style.display = "flex";
+    }
+
+    function fecharModalConfirmacao() {
+        document.getElementById("modalConfirmacao").style.display = "none";
+        acaoConfirmada = null;
+    }
+
+    async function confirmarAcao() {
+        const acao = acaoConfirmada;
+
+        fecharModalConfirmacao();
+
+        if (typeof acao === "function") {
+            await acao();
+        }
+    }
+
+    function formatarMoeda(valor) {
+        return Number(valor).toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+        });
+    }
+
+    function formatarData(data) {
+        if (!data) {
+            return "-";
+        }
+
+        return new Date(data + "T00:00:00").toLocaleDateString("pt-BR");
+    }
+
+    function escaparTexto(texto) {
+        if (texto === null || texto === undefined) {
+            return "";
+        }
+
+        return String(texto)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function mostrarToast(mensagem) {
+        const toast = document.getElementById("toast");
+
+        toast.innerText = mensagem;
+        toast.classList.add("mostrar");
+
+        setTimeout(() => {
+            toast.classList.remove("mostrar");
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>

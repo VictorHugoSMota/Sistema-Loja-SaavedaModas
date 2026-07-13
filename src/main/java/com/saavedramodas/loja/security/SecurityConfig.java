@@ -32,6 +32,7 @@ public class SecurityConfig {
                                 "/lancamentos-page",
                                 "/historico-page",
                                 "/relatorios-page",
+                                "/fiados-page",
                                 "/canais-page",
 
                                 "/auth/**",
@@ -47,7 +48,8 @@ public class SecurityConfig {
                                 "/canais/**",
                                 "/lancamentos/**",
                                 "/relatorios/**",
-                                "/home/**"
+                                "/home/**",
+                                "/fiados/**"
                         ).authenticated()
 
                         .anyRequest().authenticated()

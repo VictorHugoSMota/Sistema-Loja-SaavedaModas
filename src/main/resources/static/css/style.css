@@ -7,9 +7,16 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
+html {
+    width: 100%;
+    overflow-x: hidden;
+}
+
 body {
+    width: 100%;
     background: #eceff3;
     color: #333;
+    overflow-x: hidden;
 }
 
 /* ================= TOPBAR ================= */
@@ -62,14 +69,17 @@ body {
     transition: .2s;
 }
 
-.menu a:hover {
+.menu a:hover,
+.menu a.ativo {
     background: #1f5d3b;
     color: #fff;
+    font-weight: bold;
 }
 
 .conteudo {
     flex: 1;
     padding: 25px;
+    min-width: 0;
 }
 
 /* ================= CARDS ================= */
@@ -108,7 +118,8 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
     width: 100%;
     padding: 12px;
     border: 1px solid #ccc;
@@ -119,8 +130,14 @@ select {
     background: #fff;
 }
 
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
     outline: none;
     border-color: #1f5d3b;
     box-shadow: 0 0 0 2px rgba(31, 93, 59, .12);
@@ -371,7 +388,8 @@ td:last-child {
 /* ================= BOTÕES DE AÇÃO ================= */
 
 .btn-editar,
-.btn-excluir {
+.btn-excluir,
+.btn-pagar {
     width: 42px;
     height: 42px;
     flex-shrink: 0;
@@ -397,6 +415,15 @@ td:last-child {
 
 .btn-excluir:hover {
     background: #bb2d3b;
+    transform: scale(1.05);
+}
+
+.btn-pagar {
+    background: #0d6efd;
+}
+
+.btn-pagar:hover {
+    background: #0b5ed7;
     transform: scale(1.05);
 }
 
@@ -505,13 +532,62 @@ td:last-child {
     margin-top: 20px;
 }
 
+/* ================= FIADOS ================= */
+
+.cabecalho-fiados {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 10px;
+}
+
+.cabecalho-fiados p {
+    color: #555;
+    margin-top: 6px;
+}
+
+.btn-cadastrar-fiado {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.cards-fiados-resumo {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.tabela-wrapper-fiados table.tabela-fiados {
+    min-width: 760px;
+}
+
+.coluna-acoes {
+    min-width: 210px;
+}
+
+.acoes-fiado {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.detalhes-fiado p {
+    margin-bottom: 12px;
+    color: #444;
+    line-height: 1.4;
+}
+
 /* ================= MOBILE ================= */
 
 @media (max-width: 768px) {
 
     .topbar {
-        height: 60px;
-        padding: 0 20px;
+        height: auto;
+        min-height: 60px;
+        padding: 14px 16px;
+        gap: 8px;
     }
 
     .logo {
@@ -520,14 +596,16 @@ td:last-child {
 
     .usuario {
         font-size: 13px;
-        max-width: 130px;
+        max-width: 155px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        text-align: right;
     }
 
     .container {
         flex-direction: column;
+        min-height: auto;
     }
 
     .menu {
@@ -536,11 +614,14 @@ td:last-child {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         box-shadow: 0 2px 6px rgba(0, 0, 0, .1);
+        position: sticky;
+        top: 60px;
+        z-index: 90;
     }
 
     .menu a {
         flex-shrink: 0;
-        padding: 16px 18px;
+        padding: 15px 16px;
         font-size: 14px;
         border-bottom: none;
         border-right: 1px solid #ececec;
@@ -548,12 +629,13 @@ td:last-child {
     }
 
     .conteudo {
-        padding: 22px;
+        padding: 16px;
     }
 
     .card {
-        padding: 20px;
-        margin-top: 18px;
+        padding: 18px;
+        margin-top: 0;
+        border-radius: 12px;
     }
 
     h1 {
@@ -566,50 +648,31 @@ td:last-child {
     }
 
     input,
-    select {
+    select,
+    textarea {
         font-size: 16px;
         padding: 14px 12px;
     }
 
     button {
-        padding: 16px;
-        font-size: 16px;
-    }
-
-    .tabela-wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    .tabela-wrapper table {
-        min-width: 560px;
-    }
-
-    th,
-    td {
-        padding: 12px;
-        font-size: 13px;
-    }
-
-    .resumo-card {
-        padding: 24px;
-    }
-
-    .resumo-card h1 {
-        font-size: 32px !important;
-    }
-
-    .tituloResumo {
+        padding: 15px;
         font-size: 15px;
     }
 
+    .btn-verde,
+    .btn-relatorio {
+        max-width: none;
+    }
+
     .cards-canais {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 12px;
+        margin-top: 20px;
+        margin-bottom: 32px;
     }
 
     .canal-card h2 {
-        font-size: 20px;
+        font-size: 23px;
     }
 
     .filtros {
@@ -624,6 +687,135 @@ td:last-child {
 
     .btn-buscar {
         width: 100%;
+    }
+
+    .cabecalho-fiados {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-cadastrar-fiado {
+        width: 100%;
+    }
+
+    .tabela-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .tabela-wrapper table {
+        min-width: 560px;
+    }
+
+    .tabela-wrapper-fiados {
+        overflow-x: visible;
+        border-radius: 0;
+    }
+
+    .tabela-wrapper-fiados table.tabela-fiados {
+        min-width: 0 !important;
+        width: 100%;
+        box-shadow: none;
+        background: transparent;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: visible;
+    }
+
+    .tabela-fiados thead {
+        display: none;
+    }
+
+    .tabela-fiados,
+    .tabela-fiados tbody,
+    .tabela-fiados tr,
+    .tabela-fiados td {
+        display: block;
+        width: 100%;
+    }
+
+    .tabela-fiados tr {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, .10);
+        padding: 12px;
+        margin-bottom: 14px;
+    }
+
+    .tabela-fiados tr:nth-child(even),
+    .tabela-fiados tr:hover {
+        background: #fff;
+    }
+
+    .tabela-fiados td {
+        border-bottom: 1px solid #eee;
+        text-align: right;
+        padding: 12px 8px;
+        white-space: normal;
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .tabela-fiados td:last-child {
+        border-bottom: none;
+    }
+
+    .tabela-fiados td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        color: #1f5d3b;
+        text-align: left;
+    }
+
+    .tabela-fiados td[colspan] {
+        display: block;
+        text-align: center;
+    }
+
+    .tabela-fiados td[colspan]::before {
+        content: "";
+    }
+
+    .tabela-fiados .coluna-acoes {
+        min-width: 0;
+        display: block;
+        text-align: center;
+    }
+
+    .tabela-fiados .coluna-acoes::before {
+        display: block;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .acoes-fiado {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .acoes-fiado button,
+    .acoes-fiado .btn-editar,
+    .acoes-fiado .btn-excluir,
+    .acoes-fiado .btn-pagar {
+        width: 46px;
+        height: 46px;
+        padding: 0 !important;
+    }
+
+    .modal {
+        align-items: flex-start;
+        overflow-y: auto;
+        padding: 20px 0;
+    }
+
+    .modal-box {
+        width: 94%;
+        max-height: none;
+        padding: 22px;
     }
 
     .modal-botoes {
@@ -653,18 +845,20 @@ td:last-child {
     }
 
     .conteudo {
-        padding: 16px;
+        padding: 12px;
     }
 
     .card {
-        padding: 18px;
+        padding: 16px;
     }
 
-    .cards-canais {
-        grid-template-columns: 1fr;
-    }
-
+    .cards-canais,
     .cards-home {
         grid-template-columns: 1fr;
+    }
+
+    .menu a {
+        padding: 14px;
+        font-size: 13px;
     }
 }
