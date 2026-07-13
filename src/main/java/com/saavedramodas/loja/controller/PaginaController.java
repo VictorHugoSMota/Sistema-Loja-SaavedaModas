@@ -67,4 +67,9 @@ public class PaginaController {
 
     }
 
+    @GetMapping("/fiados-page")
+    public String fiados() {
+        return "fiados";
+    }
+
 }
